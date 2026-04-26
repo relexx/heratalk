@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HeraTalk — UI Mockup v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* === Neutral base === */
+    --bg-page: #0a0a0b;
+    --bg-grid-line: rgba(22, 163, 74, 0.04);
+    --phone-bezel: #1a1a1d;
+    --phone-screen: #0f0f12;
+    --phone-screen-elevated: #17171b;
+    --phone-screen-higher: #1f1f24;
+    --text-primary: #f5f5f4;
+    --text-secondary: #a8a29e;
+    --text-tertiary: #706e6b;
+
+    /* === Ampel-Farblogik === */
+    --color-active: #16a34a;               /* Grün = aktiv/sprechend/gut */
+    --color-active-soft: rgba(22, 163, 74, 0.14);
+    --color-active-glow: rgba(22, 163, 74, 0.35);
+    --color-direct: #2563eb;               /* Blau = Direktruf/privat */
+    --color-direct-soft: rgba(37, 99, 235, 0.14);
+    --color-direct-glow: rgba(37, 99, 235, 0.35);
+    --color-warn: #ca8a04;                 /* Gelb = Warnung/degradiert */
+    --color-warn-soft: rgba(202, 138, 4, 0.14);
+    --color-error: #dc2626;                /* Rot = Fehler/Auflegen */
+    --color-error-soft: rgba(220, 38, 38, 0.14);
+
+    /* === Brand === */
+    --brand-start: #059669;                /* Teal */
+    --brand-mid: #0891b2;                  /* Cyan */
+    --brand-end: #2563eb;                  /* Blue */
+
+    /* === UI tokens === */
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-medium: rgba(255, 255, 255, 0.1);
+    --shadow-phone: 0 30px 80px -20px rgba(0, 0, 0, 0.85),
+                    0 10px 40px -10px rgba(22, 163, 74, 0.08);
+    --ptt-size: 132px;  /* fixe PTT-Größe im Mockup (repräsentiert 110dp) */
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg-page);
+    color: var(--text-primary);
+    font-family: 'Manrope', -apple-system, sans-serif;
+    font-weight: 400;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  body {
+    background-image:
+      linear-gradient(var(--bg-grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bg-grid-line) 1px, transparent 1px);
+    background-size: 48px 48px;
+    min-height: 100vh;
+  }
+
+  header {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 80px 40px 48px;
+    position: relative;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 40px;
+    width: 64px;
+    height: 2px;
+    background: var(--color-active);
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--color-active);
+    margin-bottom: 24px;
+    font-weight: 500;
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.02;
+    margin-bottom: 20px;
+  }
+  h1 .accent { color: var(--color-active); font-weight: 300; font-style: italic; }
+
+  .lede {
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+    max-width: 720px;
+    margin-bottom: 32px;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-bottom: 12px;
+    padding: 18px 20px;
+    background: var(--phone-screen-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    max-width: 900px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 10px; }
+  .legend-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+  .legend-dot.active { background: var(--color-active); box-shadow: 0 0 8px var(--color-active-glow); }
+  .legend-dot.direct { background: var(--color-direct); box-shadow: 0 0 8px var(--color-direct-glow); }
+  .legend-dot.warn { background: var(--color-warn); }
+  .legend-dot.error { background: var(--color-error); }
+  .legend-label strong { color: var(--text-secondary); font-weight: 500; margin-right: 6px; }
+
+  .meta {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 24px;
+  }
+  .meta span strong { color: var(--text-secondary); font-weight: 500; }
+
+  .mockup-grid {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 40px 120px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 48px 56px;
+    align-items: start;
+  }
+
+  .screen-frame {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .screen-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    padding: 6px 14px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 100px;
+  }
+  .screen-label strong { color: var(--color-active); font-weight: 600; }
+  .screen-label.direct strong { color: var(--color-direct); }
+
+  /* === Phone === */
+  .phone {
+    width: 340px;
+    height: 700px;
+    background: var(--phone-bezel);
+    border-radius: 44px;
+    padding: 10px;
+    position: relative;
+    box-shadow: var(--shadow-phone);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+  }
+  .phone::before {
+    content: '';
+    position: absolute;
+    top: 22px; left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 26px;
+    background: #000;
+    border-radius: 100px;
+    z-index: 10;
+  }
+
+  .screen {
+    width: 100%;
+    height: 100%;
+    background: var(--phone-screen);
+    border-radius: 36px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .status-bar {
+    height: 44px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .status-bar .time { color: var(--text-primary); }
+  .status-bar .icons { color: var(--text-secondary); letter-spacing: 2px; }
+
+  .app-header {
+    padding: 14px 18px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+  }
+  .app-header .title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+  .app-header .channel-name {
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .app-header .channel-name .back { color: var(--text-secondary); font-weight: 400; }
+  .app-header .channel-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-tertiary);
+  }
+  .app-header .net-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px 4px 8px;
+    background: var(--color-active-soft);
+    border-radius: 100px;
+    flex-shrink: 0;
+  }
+  .app-header .net-status.warn { background: var(--color-warn-soft); }
+  .app-header .net-status.err { background: var(--color-error-soft); }
+  .app-header .net-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--color-active);
+    box-shadow: 0 0 6px var(--color-active-glow);
+  }
+  .app-header .net-status.warn .net-dot { background: var(--color-warn); box-shadow: none; }
+  .app-header .net-status.err .net-dot { background: var(--color-error); }
+  .app-header .net-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--color-active);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+  .app-header .net-status.warn .net-label { color: var(--color-warn); }
+  .app-header .net-status.err .net-label { color: var(--color-error); }
+  .app-header .gear {
+    margin-left: 10px;
+    font-size: 18px;
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+
+  /* === PTT fixed anchor === */
+  .ptt-fixed-zone {
+    position: absolute;
+    bottom: 32px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    z-index: 5;
+  }
+  .ptt-btn {
+    width: var(--ptt-size);
+    height: var(--ptt-size);
+    border-radius: 50%;
+    background: var(--phone-screen-elevated);
+    border: 3px solid var(--color-active);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    position: relative;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 0 0 transparent, inset 0 2px 20px rgba(22, 163, 74, 0.08);
+  }
+  .ptt-btn.idle {
+    background: radial-gradient(circle at center, var(--color-active-soft) 0%, transparent 75%);
+  }
+  .ptt-btn.active {
+    background: radial-gradient(circle at center, var(--color-active) 0%, rgba(22, 163, 74, 0.6) 100%);
+    border-color: var(--color-active);
+    box-shadow: 0 0 40px var(--color-active-glow), inset 0 0 30px rgba(22, 163, 74, 0.4);
+  }
+  .ptt-btn.direct {
+    border-color: var(--color-direct);
+    background: radial-gradient(circle at center, var(--color-direct-soft) 0%, transparent 75%);
+  }
+  .ptt-btn.locked {
+    border-color: var(--color-warn);
+    border-style: dashed;
+    background: var(--phone-screen-elevated);
+    opacity: 0.75;
+  }
+  .ptt-btn.reconnecting {
+    border-color: var(--color-warn);
+    background: var(--phone-screen-elevated);
+  }
+
+  .ptt-icon {
+    font-size: 28px;
+    color: var(--color-active);
+  }
+  .ptt-btn.direct .ptt-icon { color: var(--color-direct); }
+  .ptt-btn.locked .ptt-icon { color: var(--color-warn); }
+  .ptt-btn.reconnecting .ptt-icon { color: var(--color-warn); }
+  .ptt-btn.active .ptt-icon { color: #fff; }
+
+  .ptt-label {
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-active);
+    text-align: center;
+    line-height: 1.2;
+    padding: 0 8px;
+  }
+  .ptt-btn.direct .ptt-label { color: var(--color-direct); }
+  .ptt-btn.locked .ptt-label { color: var(--color-warn); }
+  .ptt-btn.reconnecting .ptt-label { color: var(--color-warn); }
+  .ptt-btn.active .ptt-label { color: #fff; }
+
+  .ptt-timer {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .screen-body {
+    flex: 1;
+    overflow: hidden;
+    padding-bottom: calc(var(--ptt-size) + 64px);  /* Platz für fixierten PTT */
+    position: relative;
+  }
+  .screen-body.no-ptt {
+    padding-bottom: 0;
+  }
+
+  /* ========== SCREEN 1: First Run ========== */
+  .first-run {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 40px 24px 32px;
+  }
+  .brand-mark {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 40px;
+  }
+  .brand-icon {
+    width: 88px;
+    height: 88px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, var(--brand-start) 0%, var(--brand-mid) 50%, var(--brand-end) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 20px 40px -12px rgba(8, 145, 178, 0.4);
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .brand-icon::after {
+    content: '';
+    position: absolute;
+    top: -50%; right: -50%;
+    width: 100%; height: 200%;
+    background: radial-gradient(circle at center, rgba(255,255,255,0.15) 0%, transparent 50%);
+    transform: rotate(35deg);
+  }
+  .brand-icon svg { width: 44px; height: 44px; position: relative; z-index: 1; }
+  .brand-name {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+  }
+  .brand-tagline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    margin-top: 6px;
+  }
+
+  .cta-group { display: flex; flex-direction: column; gap: 12px; }
+  .cta {
+    padding: 18px 20px;
+    border-radius: 16px;
+    background: var(--phone-screen-elevated);
+    border: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .cta.primary {
+    background: var(--color-active);
+    border-color: var(--color-active);
+  }
+  .cta.primary .cta-icon-wrap { background: rgba(0,0,0,0.2); }
+  .cta.primary .cta-title, .cta.primary .cta-sub { color: #fff; }
+  .cta.primary .cta-sub { color: rgba(255,255,255,0.8); }
+
+  .cta-icon-wrap {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: var(--color-active-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .cta-icon-wrap svg { width: 22px; height: 22px; color: var(--color-active); }
+  .cta.primary .cta-icon-wrap svg { color: #fff; }
+  .cta-text { display: flex; flex-direction: column; gap: 2px; flex: 1; text-align: left; }
+  .cta-title { font-weight: 600; font-size: 14px; color: var(--text-primary); }
+  .cta-sub { font-size: 12px; color: var(--text-secondary); }
+
+  /* ========== SCREEN 2: QR Display ========== */
+  .qr-screen { padding: 12px 20px 24px; flex: 1; display: flex; flex-direction: column; }
+  .back-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0 20px;
+    margin-bottom: 8px;
+  }
+  .back-btn { color: var(--text-secondary); font-size: 20px; }
+  .back-title { font-weight: 600; font-size: 15px; }
+
+  .qr-lead { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5; }
+  .qr-lead strong { color: var(--text-primary); }
+
+  .qr-frame {
+    background: #fff;
+    padding: 16px;
+    border-radius: 16px;
+    margin: 0 auto;
+    width: 200px;
+    height: 200px;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(12, 1fr);
+    gap: 1px;
+    position: relative;
+  }
+  .qr-frame::before, .qr-frame::after, .qr-mark {
+    position: absolute; width: 36px; height: 36px; border: 6px solid #000; border-radius: 3px;
+  }
+  .qr-frame::before { content: ''; top: 16px; left: 16px; }
+  .qr-frame::after { content: ''; top: 16px; right: 16px; }
+  .qr-mark { bottom: 16px; left: 16px; }
+  .qr-dot { background: #000; border-radius: 1px; }
+
+  .qr-meta {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--phone-screen-elevated);
+    border-radius: 12px;
+    border: 1px solid var(--color-warn-soft);
+    border-left-width: 3px;
+    border-left-color: var(--color-warn);
+  }
+  .qr-expires {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+  .qr-expires .clock { color: var(--color-warn); }
+  .qr-warn {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+  .qr-warn .warn-icon { color: var(--color-warn); flex-shrink: 0; margin-top: 1px; }
+
+  .done-btn {
+    margin-top: auto;
+    padding: 14px;
+    background: var(--color-active);
+    color: #fff;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  /* ========== SCREEN 3: Channel Main ========== */
+  .peers-list {
+    padding: 16px 18px;
+    flex: 1;
+    overflow: auto;
+  }
+  .peers-group + .peers-group { margin-top: 18px; }
+  .peers-group-head {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--text-tertiary);
+    padding: 0 4px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .peers-group.active .peers-group-head { color: var(--color-active); }
+  .peers-group-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--text-tertiary);
+  }
+
+  .peer-card {
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--phone-screen-elevated);
+    border: 1px solid var(--border-subtle);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+  }
+  .peer-card.speaking {
+    border-color: var(--color-active);
+    border-left-width: 3px;
+    background: linear-gradient(90deg, var(--color-active-soft) 0%, transparent 60%);
+  }
+  .peer-card.in-direct {
+    border-color: var(--color-direct);
+    border-left-width: 3px;
+    background: linear-gradient(90deg, var(--color-direct-soft) 0%, transparent 60%);
+  }
+  .peer-card.weak {
+    border-left-width: 3px;
+    border-left-color: var(--color-warn);
+  }
+  .peer-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--brand-start), var(--brand-end));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 12px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .peer-card.speaking .peer-avatar {
+    box-shadow: 0 0 0 2px var(--color-active), 0 0 12px var(--color-active-glow);
+  }
+  .peer-card.in-direct .peer-avatar {
+    background: linear-gradient(135deg, #1e40af, #2563eb);
+  }
+  .peer-info { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .peer-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .peer-state {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+  .peer-state.speaking { color: var(--color-active); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; font-size: 10px; }
+  .peer-state.direct { color: var(--color-direct); }
+  .peer-state.weak { color: var(--color-warn); }
+  .peer-rms {
+    height: 3px;
+    border-radius: 2px;
+    margin-top: 6px;
+    background: linear-gradient(90deg, var(--color-active) 72%, var(--border-subtle) 72%);
+  }
+
+  /* ========== SCREEN 4: Sending TX ========== */
+  .tx-focus {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 24px;
+    text-align: center;
+  }
+  .tx-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    color: var(--color-active);
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+  .tx-timer {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 56px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1;
+    letter-spacing: 0.02em;
+    margin-bottom: 24px;
+  }
+  .tx-meter {
+    width: 80%;
+    max-width: 220px;
+    margin: 0 auto;
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(90deg,
+      var(--color-active) 0%,
+      var(--color-active) 68%,
+      var(--border-subtle) 68%);
+    margin-bottom: 10px;
+  }
+  .tx-meter-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    letter-spacing: 0.1em;
+  }
+  .tx-receivers {
+    margin-top: 32px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  /* ========== SCREEN 5: Direct Call ========== */
+  .direct-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 20px 0;
+    text-align: center;
+  }
+  .call-label-blue {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--color-direct);
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+  .call-avatar-big {
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 60%, #3b82f6 100%);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 32px;
+    color: #fff;
+    box-shadow: 0 12px 32px -8px var(--color-direct-glow);
+  }
+  .call-name-big { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+  .call-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+  }
+  .call-timer {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--color-direct);
+    margin-top: 18px;
+    letter-spacing: 0.08em;
+  }
+  .call-muted-info {
+    margin-top: 18px;
+    padding: 10px 14px;
+    background: var(--color-warn-soft);
+    border: 1px solid rgba(202, 138, 4, 0.25);
+    border-radius: 10px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    text-align: left;
+    line-height: 1.4;
+    width: 100%;
+  }
+  .call-muted-info .mute-icon { color: var(--color-warn); font-size: 14px; flex-shrink: 0; }
+  .call-muted-info strong { color: var(--text-primary); font-weight: 600; }
+
+  .hangup-btn-floating {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 16px;
+    border-radius: 100px;
+    background: var(--color-error-soft);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    color: var(--color-error);
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    z-index: 4;
+  }
+
+  /* ========== SCREEN 6: Busy — Direct while TX ========== */
+  .headsup {
+    margin: 12px 14px 0;
+    padding: 10px 12px;
+    background: var(--phone-screen-higher);
+    border: 1px solid var(--color-direct);
+    border-left-width: 3px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 20px -4px var(--color-direct-glow);
+  }
+  .headsup-avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1e40af, #2563eb);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 11px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .headsup-text { flex: 1; min-width: 0; }
+  .headsup-name { font-weight: 600; font-size: 12px; }
+  .headsup-sub { font-size: 10px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; }
+  .headsup-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .headsup-btn {
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.04em;
+    background: var(--phone-screen);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-subtle);
+  }
+  .headsup-btn.reject { color: var(--color-error); border-color: rgba(220, 38, 38, 0.3); }
+
+  /* ========== SCREEN 7: Settings ========== */
+  .settings { flex: 1; overflow: auto; padding: 10px 18px 24px; }
+
+  .settings-group { margin-bottom: 22px; }
+  .settings-group-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--text-tertiary);
+    margin-bottom: 8px;
+    padding-left: 4px;
+  }
+  .settings-item {
+    padding: 12px 14px;
+    background: var(--phone-screen-elevated);
+    border: 1px solid var(--border-subtle);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+  .settings-item.column {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .settings-item:first-child { border-top-left-radius: 10px; border-top-right-radius: 10px; }
+  .settings-item:last-child { border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; }
+  .settings-item + .settings-item { border-top: none; }
+
+  .settings-item-text { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .settings-item-label { font-size: 13px; font-weight: 500; }
+  .settings-item-sub { font-size: 11px; color: var(--text-tertiary); line-height: 1.4; }
+  .settings-item-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .settings-item-chevron { color: var(--text-tertiary); font-size: 13px; }
+
+  .toggle {
+    width: 38px;
+    height: 22px;
+    background: var(--border-medium);
+    border-radius: 100px;
+    position: relative;
+    flex-shrink: 0;
+    transition: background 0.2s ease;
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 18px; height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+  }
+  .toggle.on { background: var(--color-active); }
+  .toggle.on::after { transform: translateX(16px); }
+
+  .feature-icon {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: var(--color-active-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  /* VOX slider with live meter */
+  .vox-slider {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .vox-slider-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .vox-slider-label .key { color: var(--text-secondary); }
+  .vox-slider-label .val { color: var(--color-active); font-weight: 600; }
+  .vox-track {
+    height: 4px;
+    background: var(--border-medium);
+    border-radius: 2px;
+    position: relative;
+  }
+  .vox-handle {
+    position: absolute;
+    top: -6px;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--color-active);
+    box-shadow: 0 0 0 3px var(--color-active-soft);
+    left: 38%;
+    transform: translateX(-50%);
+  }
+  .vox-live-meter {
+    height: 8px;
+    background: var(--phone-screen);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+    margin-top: 2px;
+  }
+  .vox-live-fill {
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    width: 48%;
+    background: linear-gradient(90deg,
+      var(--text-tertiary) 0%,
+      var(--text-tertiary) 80%,
+      var(--color-active) 80%,
+      var(--color-active) 100%);
+    border-radius: 2px;
+  }
+  .vox-live-legend {
+    font-size: 9px;
+    color: var(--text-tertiary);
+    font-family: 'JetBrains Mono', monospace;
+    display: flex;
+    justify-content: space-between;
+  }
+  .vox-live-legend .active { color: var(--color-active); }
+
+  .hw-ptt-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-subtle);
+  }
+  .hw-ptt-opt {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+  }
+  .hw-checkbox {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border-medium);
+    border-radius: 4px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .hw-checkbox.checked {
+    background: var(--color-active);
+    border-color: var(--color-active);
+  }
+  .hw-checkbox.checked::after {
+    content: '✓';
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .hw-ptt-warn {
+    font-size: 10px;
+    color: var(--color-warn);
+    font-family: 'JetBrains Mono', monospace;
+    padding: 6px 10px;
+    background: var(--color-warn-soft);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .net-status-row {
+    padding: 12px 14px;
+    background: var(--color-active-soft);
+    border: 1px solid rgba(22, 163, 74, 0.2);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .net-status-row.warn { background: var(--color-warn-soft); border-color: rgba(202, 138, 4, 0.3); }
+  .net-status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-active); box-shadow: 0 0 8px var(--color-active-glow); }
+  .net-status-label { font-size: 12px; font-weight: 500; flex: 1; }
+
+  .recheck-btn {
+    padding: 10px 14px;
+    background: var(--phone-screen-elevated);
+    border: 1px solid var(--color-active);
+    border-radius: 10px;
+    color: var(--color-active);
+    font-weight: 600;
+    font-size: 12px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+
+  /* === Annotations === */
+  .annotation {
+    margin-top: 8px;
+    padding: 12px 14px;
+    background: rgba(22, 163, 74, 0.06);
+    border-left: 2px solid var(--color-active);
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    max-width: 300px;
+    line-height: 1.5;
+  }
+  .annotation.direct {
+    background: rgba(37, 99, 235, 0.06);
+    border-left-color: var(--color-direct);
+  }
+  .annotation strong {
+    color: var(--color-active);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+  .annotation.direct strong { color: var(--color-direct); }
+
+  footer {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 40px 80px;
+    border-top: 1px solid var(--border-subtle);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 40px 24px 32px; }
+    .mockup-grid { padding: 20px 24px 80px; gap: 32px; grid-template-columns: 1fr; }
+    .phone { width: min(340px, calc(100vw - 48px)); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Mockup v2 · April 2026</div>
+  <h1>HeraTalk <span class="accent">UI</span></h1>
+  <p class="lede">
+    Ampel-Farblogik, fixer PTT-Anker, gruppierte Peer-Liste.
+    Ein Arbeits-Werkzeug für Werkstatt, Outdoor und Krisen-Einsatz — daumenbedienbar, blind bedienbar, immer dunkel.
+  </p>
+  <div class="legend">
+    <div class="legend-item">
+      <span class="legend-dot active"></span>
+      <span class="legend-label"><strong>Grün</strong> aktiv · sprechend · verfügbar</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot direct"></span>
+      <span class="legend-label"><strong>Blau</strong> Direktruf · privat</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot warn"></span>
+      <span class="legend-label"><strong>Gelb</strong> Warnung · degradiert</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot error"></span>
+      <span class="legend-label"><strong>Rot</strong> Fehler · Auflegen</span>
+    </div>
+  </div>
+  <div class="meta">
+    <span><strong>Projekt</strong> · relexx / heratalk</span>
+    <span><strong>PTT-Anker</strong> · 110 dp, fixe Position</span>
+    <span><strong>Min.-Touch</strong> · 48 dp</span>
+    <span><strong>Theme</strong> · Dark-First</span>
+  </div>
+</header>
+
+<div class="mockup-grid">
+
+  <!-- ========== SCREEN 1: FIRST RUN ========== -->
+  <div class="screen-frame">
+    <div class="screen-label"><strong>01</strong> &nbsp;·&nbsp; Erststart</div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status-bar">
+          <span class="time">9:41</span>
+          <span class="icons">●●● &nbsp; ⚡ &nbsp; 86%</span>
+        </div>
+        <div class="first-run">
+          <div class="brand-mark">
+            <div class="brand-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#fff">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="22"/>
+              </svg>
+            </div>
+            <div class="brand-name">HeraTalk</div>
+            <div class="brand-tagline">LAN Walkie-Talkie</div>
+          </div>
+          <div class="cta-group">
+            <div class="cta primary">
+              <div class="cta-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                  <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+                </svg>
+              </div>
+              <div class="cta-text">
+                <div class="cta-title">QR-Code scannen</div>
+                <div class="cta-sub">Einem Kanal beitreten</div>
+              </div>
+            </div>
+            <div class="cta">
+              <div class="cta-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+              </div>
+              <div class="cta-text">
+                <div class="cta-title">Neuen Kanal erstellen</div>
+                <div class="cta-sub">QR-Code generieren</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="annotation">
+      <strong>Onboarding</strong>
+      Zwei CTAs, unten. Brand-Icon mit Teal→Blue-Gradient — hebt sich vom Signal-Farbensystem ab, damit es nie mit Status-Farben verwechselt wird.
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 2: QR DISPLAY ========== -->
+  <div class="screen-frame">
+    <div class="screen-label"><strong>02</strong> &nbsp;·&nbsp; QR-Code anzeigen</div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status-bar">
+          <span class="time">9:42</span>
+          <span class="icons">●●● &nbsp; ⚡ &nbsp; 86%</span>
+        </div>
+        <div class="qr-screen">
+          <div class="back-header">
+            <span class="back-btn">←</span>
+            <span class="back-title">Kanal erstellt</span>
+            <span style="color:var(--text-secondary);font-size:18px;">⋮</span>
+          </div>
+          <p class="qr-lead">
+            <strong>"Werkstatt Nord"</strong> wurde erstellt.
+            Lass andere diesen Code scannen, um beizutreten.
+          </p>
+          <div class="qr-frame" id="qr-pattern">
+            <div class="qr-mark"></div>
+          </div>
+          <div class="qr-meta">
+            <div class="qr-expires">
+              <span class="clock">⏱</span>
+              <span>Gültig noch <strong style="font-family:'JetBrains Mono',monospace;">04:32</strong></span>
+            </div>
+            <div class="qr-warn">
+              <span class="warn-icon">⚠</span>
+              <span>Nur in Person zeigen — nicht als Screenshot teilen.</span>
+            </div>
+          </div>
+          <div class="done-btn">Fertig</div>
+        </div>
+      </div>
+    </div>
+    <div class="annotation">
+      <strong>Security-UX</strong>
+      FLAG_SECURE aktiv — Screenshots und Recents-Thumbnails blockiert. Gelber Warn-Akzent am QR-Meta zeigt, dass hier Vorsicht angebracht ist.
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 3: CHANNEL / PTT IDLE ========== -->
+  <div class="screen-frame">
+    <div class="screen-label"><strong>03</strong> &nbsp;·&nbsp; Kanal aktiv · PTT idle</div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status-bar">
+          <span class="time">9:44</span>
+          <span class="icons">●●● &nbsp; ⚡ &nbsp; 85%</span>
+        </div>
+        <div class="app-header">
+          <div class="title-group">
+            <div class="channel-name">Werkstatt Nord</div>
+            <div class="channel-label">Kanal · 3 Peers</div>
+          </div>
+          <div class="net-status"><span class="net-dot"></span><span class="net-label">OK</span></div>
+          <span class="gear">⚙</span>
+        </div>
+        <div class="screen-body">
+          <div class="peers-list">
+            <div class="peers-group active">
+              <div class="peers-group-head">
+                <span>Aktiv</span>
+                <span class="peers-group-count">1</span>
+              </div>
+              <div class="peer-card speaking">
+                <div class="peer-avatar">AB</div>
+                <div class="peer-info">
+                  <div class="peer-name">Anna</div>
+                  <div class="peer-state speaking">spricht · direkt · 4 ms</div>
+                  <div class="peer-rms"></div>
+                </div>
+              </div>
+            </div>
+            <div class="peers-group">
+              <div class="peers-group-head">
+                <span>Online</span>
+                <span class="peers-group-count">2</span>
+              </div>
+              <div class="peer-card weak">
+                <div class="peer-avatar">BR</div>
+                <div class="peer-info">
+                  <div class="peer-name">Bernd</div>
+                  <div class="peer-state weak">via Relay (Anna) · 18 ms</div>
+                </div>
+              </div>
+              <div class="peer-card">
+                <div class="peer-avatar">CL</div>
+                <div class="peer-info">
+                  <div class="peer-name">Carla</div>
+                  <div class="peer-state">direkt · 6 ms</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ptt-fixed-zone">
+          <div class="ptt-btn idle">
+            <span class="ptt-icon">🎙</span>
+            <span class="ptt-label">Halten zum<br>Sprechen</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="annotation">
+      <strong>Primär-Screen</strong>
+      Peer-Gruppen "Aktiv" und "Online". Anna spricht → grüner Akzent. Bernd auf Relay → gelber Akzent. PTT-Anker fest unten zentriert.
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 4: CHANNEL / PTT ACTIVE ========== -->
+  <div class="screen-frame">
+    <div class="screen-label"><strong>04</strong> &nbsp;·&nbsp; PTT aktiv · du sendest</div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status-bar">
+          <span class="time">9:45</span>
+          <span class="icons">●●● &nbsp; ⚡ &nbsp; 85%</span>
+        </div>
+        <div class="app-header">
+          <div class="title-group">
+            <div class="channel-name">Werkstatt Nord</div>
+            <div class="channel-label">Sendung läuft · 3 Empfänger</div>
+          </div>
+          <div class="net-status"><span class="net-dot"></span><span class="net-label">OK</span></div>
+          <span class="gear">⚙</span>
+        </div>
+        <div class="screen-body">
+          <div class="tx-focus">
+            <div class="tx-label">Du sprichst</div>
+            <div class="tx-timer">00:04</div>
+            <div class="tx-meter"></div>
+            <div class="tx-meter-label">-18 dB</div>
+            <div class="tx-receivers">Anna · Bernd · Carla hören mit</div>
+          </div>
+        </div>
+        <div class="ptt-fixed-zone">
+          <div class="ptt-btn active">
+            <span class="ptt-icon">🎙</span>
+            <span class="ptt-label">LIVE</span>
+            <span class="ptt-timer">00:04</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="annotation">
+      <strong>Sende-Fokus</strong>
+      PTT-Button an <em>exakt derselben Stelle</em> wie Screen 03 — nur gefüllt, glowing. Muscle-Memory-Garantie: Der Daumen weiß, wo der Button ist.
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 5: DIRECT CALL ========== -->
+  <div class="screen-frame">
+    <div class="screen-label direct"><strong>05</strong> &nbsp;·&nbsp; Direktruf aktiv</div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status-bar">
+          <span class="time">9:47</span>
+          <span class="icons">●●● &nbsp; ⚡ &nbsp; 84%</span>
+        </div>
+        <div class="app-header">
+          <div class="title-group">
+            <div class="channel-name"><span class="back">←</span> Direktruf</div>
+            <div class="channel-label">mit Anna B.</div>
+          </div>
+          <div class="net-status"><span class="net-dot"></span><span class="net-label">OK</span></div>
+          <span class="gear">⚙</span>
+        </div>
+        <div class="screen-body">
+          <div class="direct-body">
+            <div class="call-label-blue">Privater Kanal</div>
+            <div class="call-avatar-big">AB</div>
+            <div class="call-name-big">Anna B.</div>
+            <div class="call-sub">peer-to-peer · SRTP</div>
+            <div class="call-timer">00:42</div>
+            <div class="call-muted-info">
+              <span class="mute-icon">🔇</span>
+              <span>
+                <strong>Kanal stumm</strong> · Max spricht gerade<br>
+                <span style="color:var(--text-tertiary);font-size:10px;font-family:'JetBrains Mono',monospace;">2 weitere hören mit</span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="ptt-fixed-zone">
+          <div class="ptt-btn idle direct">
+            <span class="ptt-icon">🎙</span>
+            <span class="ptt-label">Halten zum<br>Sprechen</span>
+          </div>
+        </div>
+        <div class="hangup-btn-floating">AUFLEGEN</div>
+      </div>
+    </div>
+    <div class="annotation direct">
+      <strong>Direktruf</strong>
+      PTT-Anker <em>an derselben Stelle</em>, nur mit blauem Ring. Auflegen-Button klein und rot oberhalb — klar destruktiv, aber nicht am Daumen-Pfad.
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 6: Busy ========== -->
+  <div class="screen-frame">
+    <div class="screen-label"><strong>06</strong> &nbsp;·&nbsp; Direktruf während Sendung</div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status-bar">
+          <span class="time">9:46</span>
+          <span class="icons">●●● &nbsp; ⚡ &nbsp; 84%</span>
+        </div>
+        <div class="app-header">
+          <div class="title-group">
+            <div class="channel-name">Werkstatt Nord</div>
+            <div class="channel-label">Sendung läuft</div>
+          </div>
+          <div class="net-status"><span class="net-dot"></span><span class="net-label">OK</span></div>
+          <span class="gear">⚙</span>
+        </div>
+        <div class="headsup">
+          <div class="headsup-avatar">AB</div>
+          <div class="headsup-text">
+            <div class="headsup-name">Anna B. ruft an</div>
+            <div class="headsup-sub">direktruf · gerade jetzt</div>
+          </div>
+          <div class="headsup-actions">
+            <span class="headsup-btn">Später</span>
+            <span class="headsup-btn reject">Ablehnen</span>
+          </div>
+        </div>
+        <div class="screen-body">
+          <div class="tx-focus" style="justify-content:flex-start;padding-top:24px;">
+            <div class="tx-label">Du sprichst</div>
+            <div class="tx-timer" style="font-size:48px;">00:09</div>
+            <div class="tx-meter"></div>
+            <div class="tx-meter-label">-16 dB</div>
+          </div>
+        </div>
+        <div class="ptt-fixed-zone">
+          <div class="ptt-btn active">
+            <span class="ptt-icon">🎙</span>
+            <span class="ptt-label">LIVE</span>
+            <span class="ptt-timer">00:09</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="annotation direct">
+      <strong>F-12 Busy-Flow</strong>
+      Eingehender Direktruf unterbricht die Sendung nicht. Heads-up oben, zwei Aktionen, PTT läuft unverändert weiter. Signal-Typ konfigurierbar.
+    </div>
+  </div>
+
+  <!-- ========== SCREEN 7: SETTINGS ========== -->
+  <div class="screen-frame">
+    <div class="screen-label"><strong>07</strong> &nbsp;·&nbsp; Einstellungen</div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status-bar">
+          <span class="time">9:48</span>
+          <span class="icons">●●● &nbsp; ⚡ &nbsp; 84%</span>
+        </div>
+        <div class="app-header">
+          <div class="title-group">
+            <div class="channel-name"><span class="back">←</span> Einstellungen</div>
+            <div class="channel-label">HeraTalk 0.3.0</div>
+          </div>
+          <div class="net-status"><span class="net-dot"></span><span class="net-label">OK</span></div>
+        </div>
+        <div class="settings">
+          <div class="settings-group">
+            <div class="settings-group-title">Audio</div>
+            <div class="settings-item">
+              <div class="settings-item-text">
+                <div class="settings-item-label">Sprechmodus</div>
+              </div>
+              <span class="settings-item-value">PTT</span>
+              <span class="settings-item-chevron">›</span>
+            </div>
+            <div class="settings-item">
+              <div class="settings-item-text">
+                <div class="settings-item-label">Audio-Ausgabe</div>
+              </div>
+              <span class="settings-item-value">Lautsprecher</span>
+              <span class="settings-item-chevron">›</span>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <div class="settings-group-title">App-Verhalten</div>
+            <div class="settings-item">
+              <div class="settings-item-text">
+                <div class="settings-item-label">Sprache</div>
+                <div class="settings-item-sub">System folgen · Deutsch · Englisch</div>
+              </div>
+              <span class="settings-item-value">System</span>
+              <span class="settings-item-chevron">›</span>
+            </div>
+            <div class="settings-item">
+              <div class="settings-item-text">
+                <div class="settings-item-label">Theme</div>
+                <div class="settings-item-sub">Kommt mit v1.0 — aktuell fix: Dunkel</div>
+              </div>
+              <span class="settings-item-value">Dunkel</span>
+              <span class="settings-item-chevron">›</span>
+            </div>
+            <div class="settings-item">
+              <div class="settings-item-text">
+                <div class="settings-item-label">Letzten Kanal bei App-Start fortsetzen</div>
+                <div class="settings-item-sub">Statt Kanal-Auswahl-Screen direkt in den letzten Kanal</div>
+              </div>
+              <div class="toggle"></div>
+            </div>
+            <div class="settings-item">
+              <div class="settings-item-text">
+                <div class="settings-item-label">Update-Prüfung bei Start</div>
+                <div class="settings-item-sub">Einmal pro Start mit GitHub abgleichen</div>
+              </div>
+              <div class="toggle"></div>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <div class="settings-group-title">Netzwerk</div>
+            <div class="net-status-row">
+              <span class="net-status-dot"></span>
+              <span class="net-status-label">Verbindung ist gut</span>
+            </div>
+            <div class="recheck-btn">↻ NETZWERK NEU PRÜFEN</div>
+            <div class="settings-item">
+              <div class="settings-item-text"><div class="settings-item-label">Diagnose anzeigen</div></div>
+              <span class="settings-item-chevron">›</span>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <div class="settings-group-title">Benachrichtigungen</div>
+            <div class="settings-item">
+              <div class="settings-item-text">
+                <div class="settings-item-label">Direktruf eingehend</div>
+              </div>
+              <span class="settings-item-value">Klingelton</span>
+              <span class="settings-item-chevron">›</span>
+            </div>
+            <div class="settings-item">
+              <div class="settings-item-text">
+                <div class="settings-item-label">Direktruf während eigener Sendung</div>
+                <div class="settings-item-sub">Signal, wenn du gerade sendest oder in einem Direktruf bist</div>
+              </div>
+              <span class="settings-item-value">Vibration</span>
+              <span class="settings-item-chevron">›</span>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <div class="settings-group-title">Features und Berechtigungen</div>
+            <div class="settings-item column">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <span class="feature-icon" style="background:var(--color-active-soft);color:var(--color-active);">🎙</span>
+                <div class="settings-item-text">
+                  <div class="settings-item-label">VOX-Modus</div>
+                  <div class="settings-item-sub">Mikrofon bleibt dauerhaft aktiv</div>
+                </div>
+                <div class="toggle on"></div>
+              </div>
+              <div class="vox-slider">
+                <div class="vox-slider-label">
+                  <span class="key">Schwellwert</span>
+                  <span class="val">−45 dB</span>
+                </div>
+                <div class="vox-track"><div class="vox-handle"></div></div>
+                <div class="vox-live-meter"><div class="vox-live-fill"></div></div>
+                <div class="vox-live-legend"><span>Stille</span><span class="active">triggert Sendung →</span></div>
+              </div>
+            </div>
+            <div class="settings-item column">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <span class="feature-icon" style="background:var(--color-active-soft);color:var(--color-active);">🎧</span>
+                <div class="settings-item-text">
+                  <div class="settings-item-label">Hardware-PTT</div>
+                  <div class="settings-item-sub">Zusätzliche PTT-Auslöser</div>
+                </div>
+                <div class="toggle on"></div>
+              </div>
+              <div class="hw-ptt-options">
+                <div class="hw-ptt-opt"><div class="hw-checkbox checked"></div>Bluetooth-Media-Button</div>
+                <div class="hw-ptt-opt"><div class="hw-checkbox"></div>Lautstärke hoch</div>
+                <div class="hw-ptt-opt"><div class="hw-checkbox"></div>Lautstärke runter</div>
+                <div class="hw-ptt-warn">⚠ Lautstärke-Tasten blockieren System-Lautstärke</div>
+              </div>
+            </div>
+            <div class="settings-item">
+              <span class="feature-icon" style="background:var(--color-active-soft);color:var(--color-active);">🔁</span>
+              <div class="settings-item-text">
+                <div class="settings-item-label">Sidetone</div>
+                <div class="settings-item-sub">Eigene Stimme beim Senden leise mithören</div>
+              </div>
+              <div class="toggle"></div>
+            </div>
+            <div class="settings-item">
+              <span class="feature-icon" style="background:var(--color-direct-soft);color:var(--color-direct);">🔔</span>
+              <div class="settings-item-text">
+                <div class="settings-item-label">Wake-on-Direktruf</div>
+                <div class="settings-item-sub">Bildschirm bei eingehendem Ruf einschalten</div>
+              </div>
+              <div class="toggle on"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="annotation">
+      <strong>Live-Feedback</strong>
+      VOX-Slider mit Live-Pegel direkt darunter. Hardware-PTT-Untermenü mit Einzel-Checkboxes und Warn-Hinweis zur System-Lautstärke. Netzwerk-neu-prüfen als prominenter Button.
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <span>relexx · HeraTalk · BSD 3-Clause</span>
+  <span>Mockup v2 · 2026-04-25</span>
+  <span>github.com/relexx/heratalk</span>
+</footer>
+
+<script>
+  // Generiere fake QR-Pattern deterministisch
+  (function generateQR() {
+    const frame = document.getElementById('qr-pattern');
+    if (!frame) return;
+    let s = 137;
+    const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+    for (let row = 0; row < 12; row++) {
+      for (let col = 0; col < 12; col++) {
+        const inTopLeft = row < 4 && col < 4;
+        const inTopRight = row < 4 && col >= 8;
+        const inBottomLeft = row >= 8 && col < 4;
+        if (inTopLeft || inTopRight || inBottomLeft) continue;
+        if (rand() > 0.55) {
+          const dot = document.createElement('div');
+          dot.className = 'qr-dot';
+          dot.style.gridRow = (row + 1) + ' / span 1';
+          dot.style.gridColumn = (col + 1) + ' / span 1';
+          frame.appendChild(dot);
+        }
+      }
+    }
+  })();
+</script>
+
+</body>
+</html>

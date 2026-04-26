@@ -1,0 +1,29 @@
+# Android / Gradle
+*.iml
+.gradle/
+local.properties
+.idea/
+.DS_Store
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# Signing
+*.keystore
+*.jks
+release.keystore
+
+# NDK
+obj/
+
+# Generated
+**/generated/
+**/build/generated/
+
+# Claude Code
+.claude/settings.local.json

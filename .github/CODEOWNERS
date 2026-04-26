@@ -1,0 +1,7 @@
+# Global fallback
+* @relexx
+
+# Security-critical modules — require explicit review
+/core/crypto/ @relexx
+/service/media/ @relexx
+/service/audio/ @relexx

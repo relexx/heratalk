@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HeraTalk — UI Mockup</title>
+<style>
+  :root {
+    --bg: #0f1419;
+    --surface: #1a2129;
+    --surface-2: #242e38;
+    --primary: #4f9eff;
+    --primary-dark: #2d7bd4;
+    --accent: #00d4a0;
+    --danger: #ff5252;
+    --warning: #ffb84d;
+    --text: #e4e9f0;
+    --text-dim: #8b96a8;
+    --border: #2d3846;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  body { background: #060a10; color: var(--text); padding: 20px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; gap: 40px; }
+  h1 { font-size: 24px; font-weight: 600; }
+  .subtitle { color: var(--text-dim); font-size: 14px; margin-bottom: 20px; }
+  .mockups-container { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; max-width: 1400px; }
+  .phone-wrapper { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .phone-label { font-size: 13px; color: var(--text-dim); font-weight: 500; }
+  .phone {
+    width: 340px;
+    height: 700px;
+    background: var(--bg);
+    border-radius: 36px;
+    overflow: hidden;
+    border: 8px solid #1a1a1a;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .status-bar {
+    height: 28px;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    font-size: 11px;
+    color: var(--text);
+  }
+  .status-icons { display: flex; gap: 4px; }
+  .app-bar {
+    padding: 14px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .app-bar-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+  .channel-name { font-size: 17px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .channel-meta { font-size: 11px; color: var(--text-dim); }
+  .net-indicator { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 12px; background: var(--surface-2); font-size: 11px; }
+  .net-indicator.green { color: var(--accent); }
+  .net-indicator.yellow { color: var(--warning); }
+  .net-indicator.red { color: var(--danger); }
+  .net-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .screen-content { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+  .peer-list { display: flex; flex-direction: column; gap: 8px; }
+  .section-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; font-weight: 500; }
+  .peer {
+    padding: 12px;
+    background: var(--surface);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid transparent;
+    transition: border-color 0.15s;
+    cursor: pointer;
+  }
+  .peer:active { border-color: var(--primary); }
+  .peer.talking { border-color: var(--accent); background: rgba(0,212,160,0.08); }
+  .peer.direct { border-color: var(--primary); background: rgba(79,158,255,0.08); }
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+  .avatar.a1 { background: linear-gradient(135deg, #4f9eff, #2d7bd4); }
+  .avatar.a2 { background: linear-gradient(135deg, #00d4a0, #00a881); }
+  .avatar.a3 { background: linear-gradient(135deg, #ffb84d, #ff9224); }
+  .avatar.a4 { background: linear-gradient(135deg, #b47ff7, #8b56d4); }
+  .peer-info { flex: 1; min-width: 0; }
+  .peer-name { font-size: 14px; font-weight: 500; }
+  .peer-status { font-size: 11px; color: var(--text-dim); margin-top: 2px; display: flex; align-items: center; gap: 5px; }
+  .peer-status.active { color: var(--accent); }
+  .peer-status.direct { color: var(--primary); }
+  .peer-status.weak { color: var(--warning); }
+  .peer-latency { font-size: 11px; color: var(--text-dim); padding: 2px 8px; background: var(--surface-2); border-radius: 10px; }
+  .talking-wave { display: inline-flex; gap: 2px; align-items: center; }
+  .talking-wave span { width: 2px; height: 8px; background: var(--accent); border-radius: 1px; animation: wave 0.8s infinite ease-in-out; }
+  .talking-wave span:nth-child(2) { animation-delay: 0.2s; height: 12px; }
+  .talking-wave span:nth-child(3) { animation-delay: 0.4s; height: 6px; }
+  @keyframes wave { 0%, 100% { transform: scaleY(0.5); } 50% { transform: scaleY(1); } }
+  .ptt-zone {
+    padding: 20px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .ptt-status { font-size: 12px; color: var(--text-dim); text-align: center; }
+  .ptt-status.active { color: var(--accent); font-weight: 500; }
+  .ptt-button {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, var(--primary), var(--primary-dark));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    box-shadow: 0 8px 20px rgba(79,158,255,0.4);
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.1s;
+  }
+  .ptt-button.active { background: radial-gradient(circle at 30% 30%, var(--accent), #008f66); box-shadow: 0 0 30px rgba(0,212,160,0.6); transform: scale(0.95); }
+  .ptt-button.blocked { background: radial-gradient(circle at 30% 30%, #6e7681, #484f58); box-shadow: none; }
+  .bottom-nav {
+    display: flex;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .nav-item { flex: 1; padding: 10px 8px; text-align: center; font-size: 11px; color: var(--text-dim); border-top: 2px solid transparent; }
+  .nav-item.active { color: var(--primary); border-top-color: var(--primary); }
+  .nav-icon { font-size: 18px; display: block; margin-bottom: 3px; }
+
+  /* Direct call screen */
+  .direct-call {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    gap: 20px;
+    text-align: center;
+    background: radial-gradient(ellipse at top, rgba(79,158,255,0.15), transparent 60%);
+  }
+  .call-avatar { width: 100px; height: 100px; font-size: 36px; }
+  .call-name { font-size: 22px; font-weight: 600; }
+  .call-status { font-size: 14px; color: var(--text-dim); }
+  .call-timer { font-size: 28px; font-family: 'SF Mono', 'Monaco', monospace; color: var(--accent); margin-top: 10px; }
+  .call-muted-info {
+    background: var(--surface);
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .call-actions { display: flex; gap: 16px; margin-top: 30px; }
+  .call-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    cursor: pointer;
+  }
+  .call-btn.hangup { background: var(--danger); }
+  .call-btn.mute { background: var(--surface-2); }
+
+  /* Settings screen */
+  .settings-list { display: flex; flex-direction: column; gap: 1px; background: var(--border); border-radius: 12px; overflow: hidden; }
+  .setting-item { padding: 14px; background: var(--surface); display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .setting-label { font-size: 14px; }
+  .setting-hint { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .setting-value { font-size: 13px; color: var(--primary); }
+  .toggle { width: 40px; height: 22px; background: var(--surface-2); border-radius: 12px; position: relative; cursor: pointer; }
+  .toggle.on { background: var(--primary); }
+  .toggle::after { content: ''; width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: transform 0.15s; }
+  .toggle.on::after { transform: translateX(18px); }
+  .slider-row { display: flex; flex-direction: column; gap: 8px; padding: 14px; background: var(--surface); }
+  .slider { width: 100%; height: 4px; background: var(--surface-2); border-radius: 2px; position: relative; }
+  .slider-fill { width: 60%; height: 100%; background: var(--primary); border-radius: 2px; }
+  .slider-thumb { width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: -6px; left: calc(60% - 8px); }
+  .rms-meter { height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
+  .rms-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--warning), var(--danger)); width: 40%; transition: width 0.1s; }
+
+  .diag-row { padding: 10px 14px; background: var(--surface); display: grid; grid-template-columns: 1fr auto auto auto; gap: 8px; font-size: 11px; align-items: center; }
+  .diag-row:not(:last-child) { border-bottom: 1px solid var(--border); }
+  .diag-peer { font-weight: 500; }
+  .diag-metric { color: var(--text-dim); font-family: monospace; }
+  .diag-transport { font-size: 10px; padding: 2px 6px; border-radius: 8px; background: var(--surface-2); }
+
+  .legend { max-width: 900px; background: var(--surface); padding: 20px; border-radius: 12px; font-size: 13px; line-height: 1.6; }
+  .legend h3 { margin-bottom: 10px; font-size: 15px; }
+  .legend ul { padding-left: 20px; color: var(--text-dim); }
+  .legend code { background: var(--bg); padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>HeraTalk — UI Mockup</h1>
+<div class="subtitle">Vorschlag für die Haupt-Screens zur Diskussion</div>
+
+<div class="mockups-container">
+
+  <!-- Screen 1: Channel Main -->
+  <div class="phone-wrapper">
+    <div class="phone-label">Channel (Hauptansicht)</div>
+    <div class="phone">
+      <div class="status-bar">
+        <span>14:32</span>
+        <span class="status-icons">📶 🔋</span>
+      </div>
+      <div class="app-bar">
+        <div class="app-bar-left">
+          <div class="channel-name">Einsatzleitung Nord</div>
+          <div class="channel-meta">4 Peers · PTT-Modus</div>
+        </div>
+        <div class="net-indicator green">
+          <span class="net-dot"></span>
+          <span>Gut</span>
+        </div>
+      </div>
+      <div class="screen-content">
+        <div class="section-label">Aktiv</div>
+        <div class="peer-list">
+          <div class="peer talking">
+            <div class="avatar a2">MS</div>
+            <div class="peer-info">
+              <div class="peer-name">Martin S.</div>
+              <div class="peer-status active">
+                <span class="talking-wave"><span></span><span></span><span></span></span>
+                spricht · Broadcast
+              </div>
+            </div>
+            <div class="peer-latency">28ms</div>
+          </div>
+          <div class="peer direct">
+            <div class="avatar a3">AK</div>
+            <div class="peer-info">
+              <div class="peer-name">Anna K.</div>
+              <div class="peer-status direct">🔒 im Direktruf mit Thomas</div>
+            </div>
+            <div class="peer-latency">35ms</div>
+          </div>
+        </div>
+        <div class="section-label">Online</div>
+        <div class="peer-list">
+          <div class="peer">
+            <div class="avatar a1">TH</div>
+            <div class="peer-info">
+              <div class="peer-name">Thomas H.</div>
+              <div class="peer-status direct">🔒 im Direktruf mit Anna</div>
+            </div>
+            <div class="peer-latency">35ms</div>
+          </div>
+          <div class="peer">
+            <div class="avatar a4">JM</div>
+            <div class="peer-info">
+              <div class="peer-name">Julia M.</div>
+              <div class="peer-status weak">⚠ schwacher Empfang · via Relay</div>
+            </div>
+            <div class="peer-latency">180ms</div>
+          </div>
+        </div>
+      </div>
+      <div class="ptt-zone">
+        <div class="ptt-status">Zum Sprechen drücken und halten</div>
+        <div class="ptt-button">HALTEN</div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item active"><span class="nav-icon">📻</span>Kanal</div>
+        <div class="nav-item"><span class="nav-icon">💬</span>Direktrufe</div>
+        <div class="nav-item"><span class="nav-icon">⚙</span>Einstellungen</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 2: Talking (PTT active) -->
+  <div class="phone-wrapper">
+    <div class="phone-label">Spricht aktiv (PTT gedrückt)</div>
+    <div class="phone">
+      <div class="status-bar">
+        <span>14:33</span>
+        <span class="status-icons">📶 🔋</span>
+      </div>
+      <div class="app-bar">
+        <div class="app-bar-left">
+          <div class="channel-name">Einsatzleitung Nord</div>
+          <div class="channel-meta">4 Peers · Senden an 3</div>
+        </div>
+        <div class="net-indicator green">
+          <span class="net-dot"></span>
+          <span>Gut</span>
+        </div>
+      </div>
+      <div class="screen-content">
+        <div class="section-label">Empfänger</div>
+        <div class="peer-list">
+          <div class="peer">
+            <div class="avatar a2">MS</div>
+            <div class="peer-info">
+              <div class="peer-name">Martin S.</div>
+              <div class="peer-status">✓ empfängt</div>
+            </div>
+            <div class="peer-latency">28ms</div>
+          </div>
+          <div class="peer">
+            <div class="avatar a3">AK</div>
+            <div class="peer-info">
+              <div class="peer-name">Anna K.</div>
+              <div class="peer-status">🔒 im Direktruf – stumm</div>
+            </div>
+          </div>
+          <div class="peer">
+            <div class="avatar a4">JM</div>
+            <div class="peer-info">
+              <div class="peer-name">Julia M.</div>
+              <div class="peer-status">✓ empfängt · via Relay</div>
+            </div>
+            <div class="peer-latency">180ms</div>
+          </div>
+        </div>
+      </div>
+      <div class="ptt-zone">
+        <div class="ptt-status active">🎙 Du sprichst · 2.1s</div>
+        <div class="ptt-button active">LOSLASSEN</div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item active"><span class="nav-icon">📻</span>Kanal</div>
+        <div class="nav-item"><span class="nav-icon">💬</span>Direktrufe</div>
+        <div class="nav-item"><span class="nav-icon">⚙</span>Einstellungen</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 3: Direct Call -->
+  <div class="phone-wrapper">
+    <div class="phone-label">Direktruf (aktiv)</div>
+    <div class="phone">
+      <div class="status-bar">
+        <span>14:35</span>
+        <span class="status-icons">📶 🔋</span>
+      </div>
+      <div class="app-bar">
+        <div class="app-bar-left">
+          <div class="channel-name">Direktruf</div>
+          <div class="channel-meta">🔒 Verschlüsselt · nur zwischen euch</div>
+        </div>
+      </div>
+      <div class="direct-call">
+        <div class="avatar call-avatar a3">AK</div>
+        <div class="call-name">Anna Keller</div>
+        <div class="call-status">verbunden</div>
+        <div class="call-timer">03:42</div>
+        <div class="call-muted-info">
+          🔇 Broadcast-Kanal stumm geschaltet · 2 Peers sprechen aktuell
+        </div>
+        <div class="call-actions">
+          <div class="call-btn mute">🎙</div>
+          <div class="call-btn hangup">📞</div>
+        </div>
+      </div>
+      <div class="ptt-zone">
+        <div class="ptt-status">PTT für Direktruf</div>
+        <div class="ptt-button">HALTEN</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 4: Settings -->
+  <div class="phone-wrapper">
+    <div class="phone-label">Einstellungen &amp; Diagnose</div>
+    <div class="phone">
+      <div class="status-bar">
+        <span>14:40</span>
+        <span class="status-icons">📶 🔋</span>
+      </div>
+      <div class="app-bar">
+        <div class="app-bar-left">
+          <div class="channel-name">Einstellungen</div>
+        </div>
+      </div>
+      <div class="screen-content">
+        <div class="section-label">Audio-Modus</div>
+        <div class="settings-list">
+          <div class="setting-item">
+            <div>
+              <div class="setting-label">Sende-Modus</div>
+              <div class="setting-hint">PTT: Taste drücken · VOX: automatisch bei Sprache</div>
+            </div>
+            <div class="setting-value">PTT ›</div>
+          </div>
+          <div class="slider-row">
+            <div style="display: flex; justify-content: space-between;">
+              <span class="setting-label">VOX-Schwellwert</span>
+              <span class="setting-value">−32 dB</span>
+            </div>
+            <div class="slider">
+              <div class="slider-fill"></div>
+              <div class="slider-thumb"></div>
+            </div>
+            <div class="rms-meter"><div class="rms-fill"></div></div>
+            <div class="setting-hint">Live-Pegel · nur wirksam im VOX-Modus</div>
+          </div>
+        </div>
+
+        <div class="section-label">Audio-Ausgabe</div>
+        <div class="settings-list">
+          <div class="setting-item">
+            <div class="setting-label">Gerät</div>
+            <div class="setting-value">Lautsprecher ›</div>
+          </div>
+          <div class="setting-item">
+            <div>
+              <div class="setting-label">Bluetooth-Headset</div>
+              <div class="setting-hint">Sony WH-1000XM4 verbunden</div>
+            </div>
+            <div class="toggle on"></div>
+          </div>
+        </div>
+
+        <div class="section-label">Diagnose</div>
+        <div class="settings-list">
+          <div class="diag-row">
+            <span class="diag-peer">Martin S.</span>
+            <span class="diag-transport">UDP</span>
+            <span class="diag-metric">28ms</span>
+            <span class="diag-metric">0.1%</span>
+          </div>
+          <div class="diag-row">
+            <span class="diag-peer">Anna K.</span>
+            <span class="diag-transport">UDP</span>
+            <span class="diag-metric">35ms</span>
+            <span class="diag-metric">0.2%</span>
+          </div>
+          <div class="diag-row">
+            <span class="diag-peer">Julia M.</span>
+            <span class="diag-transport" style="background: var(--warning); color: #000;">RELAY</span>
+            <span class="diag-metric">180ms</span>
+            <span class="diag-metric">8.4%</span>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item"><span class="nav-icon">📻</span>Kanal</div>
+        <div class="nav-item"><span class="nav-icon">💬</span>Direktrufe</div>
+        <div class="nav-item active"><span class="nav-icon">⚙</span>Einstellungen</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="legend">
+  <h3>Design-Überlegungen</h3>
+  <ul>
+    <li><strong>PTT als physisch-fühlbarer Anker.</strong> Der PTT-Button ist immer an derselben Stelle, auch im Direktruf-Screen. Der Nutzer kann ohne hinzusehen sprechen — muscle memory.</li>
+    <li><strong>Farb-Codierung:</strong> <code>grün</code> = aktiv/sprechend/gut, <code>blau</code> = Direktruf/privat, <code>gelb</code> = Warnung, <code>rot</code> = Fehler/Auflegen.</li>
+    <li><strong>Netzwerk-Indikator</strong> immer rechts oben sichtbar — zentrale Vertrauens-Information für Outdoor/Krisen-Einsatz.</li>
+    <li><strong>Peer-Status zweizeilig:</strong> Name groß, Zustand (spricht / im Direktruf / schwacher Empfang) klein. Bei Tap-kurz öffnet sich der Direktruf-Dialog, bei Tap-lang die Peer-Diagnose.</li>
+    <li><strong>Sektionierung</strong> "Aktiv" / "Online" reduziert kognitive Last; wer gerade spricht, steht oben.</li>
+    <li><strong>Direktruf-Hinweis:</strong> Der Broadcast-Stummschaltungs-Status ist für den Nutzer transparent sichtbar — er weiß, was er gerade verpasst.</li>
+    <li><strong>Einstellungen mit Live-Feedback:</strong> Der RMS-Pegel direkt unter dem VOX-Schwellwert-Slider zeigt sofort, ob die Einstellung gut ist.</li>
+    <li><strong>Dark Mode default</strong> — typischer Einsatz draußen/abends, schonender für Akku und Augen.</li>
+    <li><strong>Mindest-Touch-Targets</strong> 48×48 dp überall, PTT-Button deutlich größer (ca. 110 dp) — erreichbar auch mit Handschuhen.</li>
+    <li><strong>Bottom-Navigation</strong> statt Drawer: 3 Hauptbereiche, immer erreichbar.</li>
+  </ul>
+  <h3>Offene UX-Fragen für die Diskussion</h3>
+  <ul>
+    <li>Soll der PTT-Button auch auf Tastendruck der Lautstärke-Tasten reagieren (Hardware-PTT) — default an oder aus?</li>
+    <li>Verhalten bei eingehendem Direktruf während du sendest: ablehnen-Option, stummes Queuing, oder Ring-Ton?</li>
+    <li>Bei &gt; 8 Peers im Kanal: scrollbare Liste oder Tabs nach Untergruppen?</li>
+    <li>Soll der "Netzwerk neu prüfen"-Button im Hauptscreen sichtbar sein oder nur in Einstellungen?</li>
+    <li>Haptic Feedback beim PTT-Press (kurze Vibration als Bestätigung)?</li>
+  </ul>
+</div>
+
+</body>
+</html>

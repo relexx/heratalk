@@ -1,0 +1,18 @@
+# Normalize line endings
+* text=auto eol=lf
+
+# Binary files
+*.apk binary
+*.aab binary
+*.keystore binary
+*.jks binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.so binary
+*.a binary
+
+# Shell scripts — force LF even on Windows
+*.sh text eol=lf
+gradlew text eol=lf

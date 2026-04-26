@@ -1,0 +1,26 @@
+version: 2
+updates:
+  - package-ecosystem: gradle
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      androidx:
+        patterns: ["androidx.*"]
+      kotlin:
+        patterns: ["org.jetbrains.kotlin*", "org.jetbrains.kotlinx*"]
+      koin:
+        patterns: ["io.insert-koin:*"]
+      test:
+        patterns: ["org.junit.jupiter:*", "io.mockk:*", "app.cash.turbine:*", "io.kotest:*"]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: docker
+    directory: "/.devcontainer"
+    schedule:
+      interval: weekly
