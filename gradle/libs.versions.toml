@@ -36,7 +36,7 @@ zxing = "3.5.3"
 # libopus wird als eigenes Git-Submodule eingebunden und per CMake gebaut.
 
 # Networking
-okhttp = "5.0.0"
+okhttp = "5.3.2"
 
 # Tests
 junit5 = "5.11.4"
