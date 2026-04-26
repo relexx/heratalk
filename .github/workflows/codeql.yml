@@ -25,7 +25,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-      - uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@v4
       - name: Build for CodeQL
         run: ./gradlew assembleDebug --no-daemon
       - uses: github/codeql-action/analyze@v3
