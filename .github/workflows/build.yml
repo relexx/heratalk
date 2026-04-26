@@ -48,7 +48,7 @@ jobs:
             && echo "✓ 16 KB aligned" || (echo "✗ alignment failed" && exit 1)
 
       - name: Upload APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: heratalk-debug
           path: app/build/outputs/apk/debug/*.apk
@@ -56,7 +56,7 @@ jobs:
 
       - name: Upload test reports on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-reports
           path: "**/build/reports/tests/"
