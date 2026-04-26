@@ -22,7 +22,7 @@ koin = "4.2.0"
 
 # Serialisation / Proto
 protobuf = "4.29.2"
-protobufPlugin = "0.9.5"
+protobufPlugin = "0.10.0"
 
 # Crypto
 bouncycastle = "1.80"
