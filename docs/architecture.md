@@ -109,6 +109,7 @@ flowchart TB
 :core:ui                            # Theme, wiederverwendbare Composables
 :core:crypto                        # Noise, HKDF, ChaCha20-Poly1305, SRTP-Keys
 :core:logging                       # Strukturiertes Logging, Dev-Overlay
+:core:identity                      # IdentityRepository: display_name (DataStore), Validierung, Sanitisierung, Fallback
 :service:discovery                  # NSD + Broadcast-Beacon + manuelle Eingabe
 :service:transport                  # Multi-Transport Engine (UDP, Broadcast, Relay)
 :service:signaling                  # Control-Plane (TCP + Noise-Handshake)
@@ -123,7 +124,7 @@ flowchart TB
 :feature:settings                   # Audio, VOX, Diagnose
 ```
 
-Abhängigkeitsregel: Abhängigkeiten fließen nur nach innen — `feature` → `service` → `core`. Niemals umgekehrt.
+Abhängigkeitsregel: Abhängigkeiten fließen nur nach innen — `feature` → `service` → `core`. Niemals umgekehrt. Insbesondere greifen `:feature:pairing`, `:feature:settings` und `:service:discovery` ausschließlich über `:core:identity` auf den Display-Namen zu — keines dieser Module liest oder schreibt den DataStore-Key direkt.
 
 ## 5. Kommunikationsmodelle
 
@@ -160,6 +161,7 @@ SSRC-Struktur (32 bit):
 **Stufe 1 — mDNS/NSD (primär):**
 - Service-Typ: `_heratalk._tcp.local.`
 - TXT-Records: `ver`, `chan` (SHA-256 des Kanal-Passworts, gekürzt), `pk` (X25519 Static Public Key), `dname` (Display-Name)
+  - `dname`: 1–32 Unicode-Codepoints. Eingabe in `:feature:pairing` (Pflichtfeld, leerer Default, Placeholder-Text), Owner: `:core:identity` (`IdentityRepository` mit DataStore-Key `display_name`). Änderbar in `:feature:settings`. Pflichtfeld; Fallback bei Korruption oder Migration: `Peer-{first8hex(pk)}` (z. B. `Peer-a7f32c91`) — niemals `Build.MODEL`, niemals Geräte-Hostname (Datenschutz).
 
 **Stufe 2 — UDP-Broadcast-Beacon (Fallback):**
 
@@ -170,7 +172,25 @@ Magic (4) | Version (1) | Peer Short-ID (4) | Static PK (32)
 | Channel-ID-Hash (8) | TCP-Port (2) | Display-Name-Len (1) | Display-Name
 ```
 
+- `Display-Name`: UTF-8-encoded, App-seitig auf 32 Codepoints begrenzt (max. ~128 Byte UTF-8). Bei Serialisierung wird auf Codepoint-Grenze unterhalb 255 Byte abgeschnitten, sodass das Längenfeld nicht überläuft. Immer gesetzt; bei Korruptions-Fallback `Peer-{first8hex(pk)}` (siehe oben).
+
 Alle 3 s ein Beacon. Parallel horchend.
+
+**Reactive Re-Registrierung:**
+
+`:service:discovery` subscribt auf `IdentityRepository.displayName` als `Flow<String>`. Bei Emission eines neuen Werts wird mDNS neu registriert (Debounce 300 ms gegen Eingabe-Bursts). Der Broadcast-Beacon liest den Wert pro Tick (alle 3 s) — kein expliziter Trigger erforderlich.
+
+**Empfangs-Sanitisierung für `dname`:**
+
+Eingehende `dname`-Werte fremder Peers werden vor jeglicher UI-Darstellung in `:service:discovery` sanitisiert. Sicherheits- und Privacy-Hintergrund siehe `docs/security-audit.md` F-PRIV-04. Pipeline:
+
+1. **NFC-Normalisierung** (Unicode Normalization Form Canonical Composition) — verhindert visuelle Lookalikes durch alternative Codepoint-Kombinationen.
+2. **Strip Bidi-Override-Codepoints:** entferne `U+202A`–`U+202E` und `U+2066`–`U+2069` (RTL-/LRO-/PDI-Override) — verhindert UI-Spoofing durch Rechts-nach-Links-Override.
+3. **Combining-Marks-Begrenzung:** maximal 2 Combining Marks pro Base-Codepoint — verhindert "Zalgo"-Angriffe und übergroße Textdarstellung.
+4. **Truncation auf 32 Codepoints** (NICHT Bytes oder UTF-16 Code Units).
+5. **Wenn nach Sanitisierung leer** (z. B. nur Bidi-Codepoints im Original): Ersatz durch `Peer-{first8hex(pk)}`.
+
+Sanitisierte Werte werden im `Peer`-Modell gehalten; das Original wird verworfen.
 
 **Stufe 3 — Manuelle Peer-Eingabe:**
 

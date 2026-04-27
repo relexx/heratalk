@@ -225,7 +225,7 @@ Legende: 📋 geplant · 🏗 in Arbeit · ✅ abgeschlossen · ⏸ pausiert
 **Ziel:** Zwei Peers können ein privates 1:1-Gespräch parallel zum Broadcast-Kanal führen.
 
 **Scope:**
-- `:feature:direct` — UI für Ringsignal, aktive Direktrufe (gemäß `docs/ui.md §6`)
+- `:feature:direct` — UI für Ringsignal, aktive Direktrufe (gemäß `docs/ui.md §7`)
 - Signalisierung: `DirectCallRequest`, `DirectCallAccept`, `DirectCallReject`, `DirectCallEnd`, `DirectCallStatus`
 - Separate SSRC-Range und eigene SRTP-Keys für Direct-Streams
 - Lokales Broadcast-Muting während aktivem Direktruf

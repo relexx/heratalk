@@ -27,8 +27,10 @@ flowchart LR
     Splash --> FirstRun{Erster Start?}
     FirstRun -->|ja| Pairing
     FirstRun -->|nein| Channel
-    Pairing -->|QR scannen| Channel
-    Pairing -->|Kanal erstellen| ShowQr
+    Pairing -->|QR scannen| NameInput[Name eingeben]
+    Pairing -->|Kanal erstellen| NameInput
+    NameInput -->|QR scannen| Channel
+    NameInput -->|Kanal erstellen| ShowQr
     ShowQr --> Channel
     Channel <--> Direct[Direct Call]
     Channel --> Settings
@@ -70,7 +72,50 @@ Erste Entscheidung: Beitreten oder selbst erstellen?
 
 **Zwei primäre Calls-to-Action.** Keine Fake-Wahl, keine Third-Party-Login-Illusion. Unten fix platziert für Einhand-Bedienung.
 
-## 4. Screen 2 — QR-Code anzeigen (Kanal erstellt)
+## 4. Screen 2 — Name eingeben
+
+Direkt nach der Wahl "Kanal beitreten" oder "Neuen Kanal erstellen" — vor QR-Scan bzw. QR-Anzeige. Beim Erststart **leer**; beim Re-Pairing (Kanal wechseln über Settings) wird der zuletzt gespeicherte Name vorbelegt, der Screen wird in jedem Fall angezeigt und niemals übersprungen.
+
+```
+┌─────────────────────────────────────┐
+│  ←                                  │
+│                                     │
+│   Wie heißt du?                     │
+│                                     │
+│   Dieser Name wird anderen Peers    │
+│   im Kanal angezeigt.               │
+│                                     │
+│                                     │
+│   ┌───────────────────────────┐     │
+│   │  z. B. Anna oder Werks…   │ 0/32│
+│   └───────────────────────────┘     │
+│                                     │
+│                                     │
+│                                     │
+│                                     │
+│                                     │
+│                                     │
+│   ┌───────────────────────────┐     │
+│   │  Weiter        (deaktiv.) │     │
+│   └───────────────────────────┘     │
+│                                     │
+│   Du kannst den Namen später in     │
+│   den Einstellungen ändern.         │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+**Verhalten:**
+- **Vorbelegung beim Erststart:** keine — Eingabefeld ist leer. Stattdessen Placeholder-Text (z. B. "z. B. Anna oder Werkstatt-Tablet"), der bei Eingabe verschwindet. **Kein** `Build.MODEL`, **kein** Geräte-Hostname.
+- **Vorbelegung beim Re-Pairing:** der zuletzt in DataStore gespeicherte Name; voll editierbar.
+- Zeichenzähler `X/32` rechts neben dem Textfeld, aktualisiert sich live (gemessen in Unicode-Codepoints).
+- "Weiter" ist deaktiviert, bis ≥ 1 sichtbares Zeichen eingegeben wurde (rein aus Whitespace bestehende Eingaben gelten als leer).
+- "Weiter" führt — abhängig vom vorherigen Schritt — zum QR-Scanner (Kanal beitreten) oder zum QR-Anzeige-Screen (Kanal erstellen).
+- "Zurück"-Pfeil im Header führt zu Screen 1 (Kanal-Wahl). Bereits eingegebener Wert bleibt erhalten (DataStore).
+- Name wird sofort in DataStore persistiert (`:core:identity`, Key `display_name`), damit er auch bei App-Neustart und nach dem Pairing abrufbar ist.
+- Beim Re-Pairing: Der Screen wird stets angezeigt — auch wenn bereits ein Name existiert. Damit hat der Nutzer immer die Möglichkeit, vor dem Beitritt zu einem neuen Kanal seinen Namen zu prüfen oder zu ändern.
+
+## 5. Screen 3 — QR-Code anzeigen (Kanal erstellt)
 
 ```
 ┌─────────────────────────────────────┐
@@ -107,7 +152,7 @@ Erste Entscheidung: Beitreten oder selbst erstellen?
 - Warn-Hinweis direkt am QR-Code.
 - `FLAG_SECURE` verhindert Screenshots (System-UI zeigt "Screenshots nicht erlaubt").
 
-## 5. Screen 3 — Hauptscreen (Kanal aktiv)
+## 6. Screen 4 — Hauptscreen (Kanal aktiv)
 
 Der Arbeits-Screen. Hier verbringt der Nutzer 99 % der Zeit.
 
@@ -204,9 +249,9 @@ Der Arbeits-Screen. Hier verbringt der Nutzer 99 % der Zeit.
 
 PTT-Button bleibt **an derselben Stelle**. Peer-Liste tritt in den Hintergrund und wird durch Sende-Statistik ersetzt — aber der Button verschiebt sich nicht. Das ist die Muscle-Memory-Garantie.
 
-## 6. Screen 4 — Direktruf
+## 7. Screen 5 — Direktruf
 
-### 6.1 Eingehender Ruf
+### 7.1 Eingehender Ruf
 
 ```
 ┌─────────────────────────────────────┐
@@ -240,7 +285,7 @@ PTT-Button bleibt **an derselben Stelle**. Peer-Liste tritt in den Hintergrund u
 - Zwei große Buttons, weit auseinander (versehentliches Annehmen vermeiden). Annehmen grün, Ablehnen rot.
 - Haptisch-kontinuierliche Vibration beim Ringing.
 
-### 6.2 Aktiver Direktruf
+### 7.2 Aktiver Direktruf
 
 ```
 ┌─────────────────────────────────────┐
@@ -280,7 +325,7 @@ PTT-Button bleibt **an derselben Stelle**. Peer-Liste tritt in den Hintergrund u
 - **Broadcast-Mute-Hinweis:** gelb getönt (Warn-Farbe), zeigt transparent, was der Nutzer gerade verpasst — inklusive Name des aktuell sprechenden Peers im Kanal, damit klar ist, ob ein Rückwechsel sinnvoll wäre.
 - **Auflegen-Button rot** als klar destruktive Aktion, unterhalb der PTT-Linie — nicht an der gleichen Stelle, damit keine Verwechslungsgefahr besteht.
 
-### 6.3 Eingehender Direktruf **während eigener Sendung**
+### 7.3 Eingehender Direktruf **während eigener Sendung**
 
 Sonderfall (F-12). Der Nutzer drückt gerade PTT und sendet an den Broadcast-Kanal, oder ist bereits in einem anderen Direktruf. Full-Screen-Ringing wäre hier fatal — Nutzer verliert den Sende-Fokus und vielleicht die Floor.
 
@@ -312,12 +357,12 @@ Stattdessen: kompakte Heads-up-Einblendung am oberen Rand, non-intrusive:
 **Verhalten:**
 - Heads-up-Signal konfigurierbar: Stumm / Vibration / Klingelton (Settings). Default: Vibration.
 - Zwei Aktionen:
-  - **"Später"** — Ruf bleibt als persistente Benachrichtigung stehen. Sobald der Nutzer seine Sendung beendet, öffnet sich der gewohnte Annehmen-Screen (6.1), vorausgesetzt Anna hält noch.
+  - **"Später"** — Ruf bleibt als persistente Benachrichtigung stehen. Sobald der Nutzer seine Sendung beendet, öffnet sich der gewohnte Annehmen-Screen (7.1), vorausgesetzt Anna hält noch.
   - **"Ablehnen"** — Anna bekommt "Besetzt / später versuchen".
 - Legt Anna von selbst auf, wird die Einblendung durch "Verpasster Ruf von Anna B." ersetzt und nach 5 Sekunden automatisch ausgeblendet.
 - Der PTT-Zustand bleibt unverändert, die laufende Sendung läuft störungsfrei weiter.
 
-## 7. Screen 5 — Settings
+## 8. Screen 6 — Settings
 
 ```
 ┌─────────────────────────────────────┐
@@ -422,7 +467,7 @@ Stattdessen: kompakte Heads-up-Einblendung am oberen Rand, non-intrusive:
 
 Die Reihenfolge folgt einem **Lese-Pfad**: oben das Verhalten, das man laufend justiert, in der Mitte die Knöpfe für "wenn-was-nicht-stimmt", unten die "einmal-eingestellt"-Sektionen.
 
-### 7.1 Live-Feedback bei Audio-Einstellungen
+### 8.1 Live-Feedback bei Audio-Einstellungen
 
 **VOX-Schwellwert-Slider** zeigt unmittelbar darunter den aktuellen RMS-Pegel des Mikrofons als gefüllte Bar. Der Nutzer spricht ins Gerät und sieht:
 
@@ -432,7 +477,7 @@ Die Reihenfolge folgt einem **Lese-Pfad**: oben das Verhalten, das man laufend j
 
 So kann der Nutzer den Schwellwert passend zur eigenen Sprechlautstärke und Umgebungsgeräusch einstellen, ohne raten zu müssen. Im PTT-Modus ist der Slider ausgegraut (kein Einfluss, keine Aufnahme läuft).
 
-### 7.2 Features und Berechtigungen — Verhalten
+### 8.2 Features und Berechtigungen — Verhalten
 
 Jeder Toggle in dieser Gruppe bindet genau ein Feature an genau eine (oder mehrere) Permission. Das Aktivieren durchläuft immer denselben Ablauf:
 
@@ -446,7 +491,7 @@ Auf Permission-Ablehnung wird **nicht** erneut gefragt. Der Nutzer muss aktiv di
 
 **Hardware-PTT-Untermenü:** Nach Aktivierung des Haupt-Toggles erscheinen die Unter-Optionen (Bluetooth-Media-Button, Lautstärke hoch, Lautstärke runter) als einzeln aktivierbare Checkboxes. Beim ersten Einschalten einer Lautstärke-Option erscheint ein Bestätigungs-Dialog: "Solange HeraTalk läuft, steuern die Lautstärke-Tasten nicht mehr die System-Lautstärke. Fortfahren?" Nach Bestätigung persistiert die Wahl, keine weiteren Rückfragen.
 
-### 7.3 Erstnutzer-Flow — was beim ersten Start passiert
+### 8.3 Erstnutzer-Flow — was beim ersten Start passiert
 
 Der allererste App-Start zeigt einen schlanken Willkommens-Dialog mit **genau einer sicherheitsrelevanten Entscheidung**:
 
@@ -483,13 +528,14 @@ Der allererste App-Start zeigt einen schlanken Willkommens-Dialog mit **genau ei
 Nach dieser Entscheidung:
 
 - Keine weiteren Permission-Dialoge außer `POST_NOTIFICATIONS` (falls Android 13+) direkt vor dem ersten Service-Start.
+- Als nächstes erscheint **§4 — Name eingeben**: Der Nutzer gibt seinen Display-Namen in ein leeres Pflichtfeld ein (Placeholder-Text, keine Vorbelegung, max. 32 Codepoints). "Weiter" ist deaktiviert, bis ≥ 1 sichtbares Zeichen eingegeben wurde. Erst danach wählt er "Kanal beitreten" oder "Neuen Kanal erstellen".
 - Beim Tap auf "Kanal beitreten": `CAMERA` für den QR-Scan; Ablehnung führt zu einer Fallback-UI "Geheimen Code manuell eingeben".
 - Beim Tap auf den PTT-Button zum ersten Mal: `RECORD_AUDIO`. Ablehnung deaktiviert PTT; der Nutzer kann weiterhin im Kanal *zuhören*.
 - VOX, Hardware-PTT und Wake-on-Direktruf sind standardmäßig **aus**. Die Permissions werden erst beim Toggle angefragt.
 
 Diese Abstufung stellt sicher, dass der Nutzer nur das sieht, was er gerade braucht, und nicht beim ersten Start mit fünf Permission-Dialogen überrollt wird. Die eine Initial-Frage zum Update-Check ist bewusst prominent — sie trifft eine Aussage über das Sicherheits-Modell und verdient ein bewusstes Ja/Nein.
 
-## 8. Screen 6 — Diagnose
+## 9. Screen 7 — Diagnose
 
 Für den Techniker-Nutzer. Nicht das Hauptpublikum, aber entscheidend für Troubleshooting.
 
@@ -541,7 +587,7 @@ Für den Techniker-Nutzer. Nicht das Hauptpublikum, aber entscheidend für Troub
 
 Log-Export ist **lokal** (Share-Sheet), kein automatischer Upload. Nutzer entscheidet, wohin.
 
-## 9. Interaktionsmuster
+## 10. Interaktionsmuster
 
 ### PTT-Button — fixer Anker und Zustände
 
@@ -580,7 +626,7 @@ Mehrere Hardware-Quellen können parallel als PTT-Trigger dienen:
 
 Alle Hardware-Trigger sind default-aus. Aktivierung über Settings > Features > Hardware-PTT.
 
-## 10. Farb-System
+## 11. Farb-System
 
 Farben sind funktional nach Ampel-Logik. Die einzige Ausnahme ist das Brand-Icon, das eine eigene Akzent-Farbe trägt.
 
@@ -596,7 +642,7 @@ Farben sind funktional nach Ampel-Logik. Die einzige Ausnahme ist das Brand-Icon
 
 Kontrast-Validierung: alle Kombinationen wurden gegen WCAG AA geprüft, Normal-Text 4.5:1, Large 3:1.
 
-## 11. Typografie
+## 12. Typografie
 
 - **Display und Body:** Manrope (400–800). Charakterprägend, warm, lesbar. Kein Inter, kein Roboto — die sind omnipräsent.
 - **Monospace (Diagnose-Werte, Codes, Fingerprints):** JetBrains Mono. Vertraut in der Entwickler-Welt, aber sauber ausdruckend auch für Endnutzer.
@@ -604,7 +650,7 @@ Kontrast-Validierung: alle Kombinationen wurden gegen WCAG AA geprüft, Normal-T
 
 Schriftgrößen: kleinster Text 11 sp (Diagnose-Labels), Fließtext 13–14 sp, Peer-Name 16 sp, Headlines 22 sp, Timer 40 sp.
 
-## 12. Internationalisierung im UI
+## 13. Internationalisierung im UI
 
 Alle Nutzer-sichtbaren Texte stammen aus String-Ressourcen, niemals hartkodiert. MVP-Sprachen: **Englisch** (Default) und **Deutsch** (Override). Details zur Umsetzung in `docs/architecture.md §11.7`, Anforderung in `docs/requirements.md F-15`.
 
@@ -640,7 +686,7 @@ Niemals String-Konkatenation (`"$name spricht"`), sondern Format-Strings mit pos
 - **Fachbegriffe** wie "Peer", "Broadcast", "PTT", "VOX", "Floor", "Sidetone", "Relay" — bewusst kein deutsches Pseudo-Wort, weil die Begriffe in der Zielgruppe (Werkstatt, Outdoor-Teams, Tech-Affine) etabliert sind. Der Documenter pflegt das Glossar in `.claude/agents/documenter.md`.
 - **Diagnose-Werte** wie "RTT", "Loss", "Jitter", "kbps" — internationale Einheiten und Akronyme.
 
-## 13. Accessibility-Checkliste
+## 14. Accessibility-Checkliste
 
 - [ ] Alle Icon-only-Buttons haben `contentDescription` (lokalisiert).
 - [ ] Touch-Targets mindestens 48×48 dp. PTT-Button 110 dp.
@@ -652,7 +698,7 @@ Niemals String-Konkatenation (`"$name spricht"`), sondern Format-Strings mit pos
 - [ ] Permission-Hinweise mit Deep-Link zu System-Einstellungen, kein Sackgassen-Dialog.
 - [ ] Layout funktioniert mit der jeweils längeren Übersetzung (deutsche Tests gegen Layout-Overflow).
 
-## 14. UX-Entscheidungen (Stand 2026-04-25)
+## 15. UX-Entscheidungen (Stand 2026-04-27)
 
 Die in früheren Versionen offenen Fragen wurden entschieden:
 
@@ -663,7 +709,7 @@ Die in früheren Versionen offenen Fragen wurden entschieden:
 5. **Wake-Screen bei Direktruf:** Ja, als Opt-in-Toggle "Wake-on-Direktruf" in Settings-Gruppe "Features und Berechtigungen" (gebunden an `USE_FULL_SCREEN_INTENT`). Default **an**, weil charakterprägend für Walkie-Talkie-Ersatz. Erwartete Einschränkung: Android 14+ gewährt die Permission restriktiv ("nur Telefonie-ähnliche Apps"), was wir im Manifest als zur App-Kategorie passend deklarieren und per `android:showWhenLocked` und `android:turnScreenOn` in der IncomingCallActivity unterstützen. Falls eine Android-Version oder ein Hersteller die Permission entzieht, degradiert das Feature auf eine Standard-Heads-Up-Notification — ohne Fehlermeldung, ohne Workaround-Versuche. Akzeptiert.
 6. **i18n von Anfang an:** Englisch und Deutsch ab v0.1.0. Sprachauswahl in Settings ("System folgen" als Default). Übersetzungs-Pflege durch Documenter-Agent. Entschieden.
 
-## 15. Nächste Schritte
+## 16. Nächste Schritte
 
 - Ab v0.1.0 Screen-Skeletons in Compose umsetzen (nur Navigation, leere Screens), bereits mit String-Resources statt hartkodiert.
 - Ab v0.2.0 Peer-Liste mit echten Daten.

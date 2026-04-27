@@ -21,6 +21,7 @@ Stand: Projekt-Setup, Release v0.1.0 noch nicht gestartet.
 | Claude-Code-Agenten | ✅ definiert | Einsatzbereit ab Projektstart |
 | `:app`-Modul | 📋 geplant | v0.1.0 |
 | `:core:*` | 📋 geplant | v0.1.0 (Skeleton), fachlich ab v0.5.0 |
+| `:core:identity` | 📋 geplant | v0.1.0 (DataStore-Key + Interface), Sanitisierung ab v0.5.0 |
 | `:service:discovery` | 📋 geplant | v0.2.0 |
 | `:service:transport` | 📋 geplant | v0.2.0 (Skeleton), adaptiv ab v0.9.0 |
 | `:service:signaling` | 📋 geplant | v0.5.0 |
@@ -72,7 +73,7 @@ Ubuntu 24.04 + JDK 21 + Android SDK/NDK + CMake + protoc. ADB-Brücke über Host
 Vier Rollen: Orchestrator (Planung und Fortschritt), Architekt (Architektur und Review), Entwickler (Implementierung und Tests), Dokumentierer (Docs-Pflege). Jeder als `.claude/agents/*.md`-Datei konfiguriert.
 
 ### 2026-04-25 · Feature-basiertes Permission-Modell
-Kritische Permissions (`RECORD_AUDIO`, `CAMERA`, `FOREGROUND_SERVICE_MICROPHONE`-Nutzung, `USE_FULL_SCREEN_INTENT`) werden nicht beim App-Start, sondern beim Aktivieren des zugehörigen Features abgefragt. Ablehnung deaktiviert ausschließlich das betroffene Feature — der Kanal-Betrieb ohne Mikrofon (nur Zuhören) bleibt möglich. Der Foreground-Service wechselt seinen Typ zur Laufzeit zwischen `connectedDevice` (Standard-Empfang), `microphone` (VOX oder Hardware-PTT aktiv) und gestoppt. Konsequenz: neue Anforderung F-11 in `requirements.md`, Feature-zu-Permission-Matrix und `:service:lifecycle`-Modul in `architecture.md §11.2`, Settings-Unterabschnitt "Features und Berechtigungen" in `ui.md §7`.
+Kritische Permissions (`RECORD_AUDIO`, `CAMERA`, `FOREGROUND_SERVICE_MICROPHONE`-Nutzung, `USE_FULL_SCREEN_INTENT`) werden nicht beim App-Start, sondern beim Aktivieren des zugehörigen Features abgefragt. Ablehnung deaktiviert ausschließlich das betroffene Feature — der Kanal-Betrieb ohne Mikrofon (nur Zuhören) bleibt möglich. Der Foreground-Service wechselt seinen Typ zur Laufzeit zwischen `connectedDevice` (Standard-Empfang), `microphone` (VOX oder Hardware-PTT aktiv) und gestoppt. Konsequenz: neue Anforderung F-11 in `requirements.md`, Feature-zu-Permission-Matrix und `:service:lifecycle`-Modul in `architecture.md §11.2`, Settings-Unterabschnitt "Features und Berechtigungen" in `ui.md §8`.
 
 ### 2026-04-25 · Vulnerability-Reporting via GitHub Private Vulnerability Reporting
 Keine eigene Security-Mailadresse, kein PGP-Key. Stattdessen GitHub Private Vulnerability Reporting (PVR) im Repo aktiviert. Vorteile: eingebauter Workflow, keine Mail-Infrastruktur zu pflegen, für Reporter bekannter UX-Flow. `SECURITY.md` verweist darauf. Schließt Audit-Finding F-OPS-02.
@@ -107,6 +108,29 @@ Nach UX-Review die Settings-Gruppen-Reihenfolge umgestellt auf: Audio → App-Ve
 
 ### 2026-04-25 · Internationalisierung von Beginn an
 HeraTalk wird ab v0.1.0 mehrsprachig aufgesetzt. MVP-Sprachen: **Englisch** (Default) und **Deutsch** (Override). Begründung: hartkodierte Strings sind später schwer zu finden und nachzurüsten; ein i18n-Setup von Anfang an ist die billige Variante. Konsequenz: neue Anforderung F-15, neuer Architektur-Abschnitt §11.7 mit Resource-Layout und Locale-Handling, neue Regel 33 in `.claude/rules.md` (keine hartkodierten UI-Strings), Erweiterung des Documenter-Agent-Profils um Übersetzungs-Pflege inklusive Glossar mit kanonischen Übersetzungen, Erweiterung des Developer-Agent-Profils um i18n-Disziplin. Sprach-Auswahl in Settings (System folgen / Deutsch / Englisch). Übersetzungs-Pflege liegt beim Documenter-Agent. Code-Kommentare, KDoc und Log-Messages bleiben Englisch.
+
+### 2026-04-27 · Display-Name-Eingabe im Pairing-Flow (Lücke im Erstnutzer-Flow geschlossen)
+Befund: Der dokumentierte Erstnutzer-Flow in `ui.md §8.3` deckte nur die Update-Check-Entscheidung ab, enthielt aber keinen Schritt für die Eingabe des Display-Namens. Gleichzeitig verlangt `architecture.md §6.1` `dname` als Pflicht-TXT-Record im Discovery, und der Settings-Eintrag "Dein Name" (`ui.md §8`) ist erst nach erfolgreichem Kanal-Beitritt erreichbar — eine zirkuläre Lücke.
+
+**Entscheidung:** Der Display-Name wird **als verpflichtender Schritt im Pairing-Flow** abgefragt, direkt nach Tap auf "Kanal beitreten" oder "Neuen Kanal erstellen" (Screen 1) und **vor** dem QR-Scanner bzw. der QR-Code-Generierung. Begründung:
+
+- **Natürlicher Identitätsmoment.** Der Nutzer wählt gerade seine Identität in einer Gruppe — der einzige Moment im Flow, in dem "Wer bin ich für die anderen?" inhaltlich passt.
+- **`dname` ist Pflicht-Feld** im Discovery-TXT-Record. Ohne Wert müsste die App leer broadcasten (Peers sehen "(unbekannt)") oder den Geräte-Hostnamen ableiten (auf Android herstellerabhängig instabil, oft mit echtem Namen vorbelegt → Datenschutz-Risiko).
+- **Onboarding-Dialog bleibt fokussiert.** Der Willkommens-Screen (§8.3) trifft weiterhin genau eine sicherheitsrelevante Entscheidung (Update-Check). Identität gehört in den Pairing-Kontext, nicht in den Update-Check-Kontext.
+- **Konsistent für Re-Pairing.** Beim späteren Kanal-Wechsel über Settings wird derselbe Flow durchlaufen; der bisherige Name ist als Default vorbelegt, lässt sich aber pro Kanal überschreiben.
+
+**Fallback-Verhalten für leeren `dname`:** Der Pairing-Flow lehnt leere oder rein aus Whitespace bestehende Namen ab (Eingabefeld erlaubt keinen Weiter-Tap, bis ein nicht-leerer Wert mit ≥ 1 sichtbarem Zeichen gesetzt ist). Maximal 32 Unicode-Codepoints, damit der Wert in den TXT-Record passt und in der UI nicht überläuft. Falls `dname` trotzdem (etwa durch Datenkorruption oder Migration) leer wäre, fällt `:service:discovery` auf `"Peer-{first8hex(pk)}"` zurück (z. B. `Peer-a7f3:2c91`) — **nie** auf den Geräte-Hostnamen.
+
+**Konsequenzen / Folge-Aufgaben für den Documenter:**
+- `requirements.md`: Neue Anforderung **F-16 — Display-Name-Eingabe im Pairing-Flow** mit Akzeptanzkriterien (Pflicht-Eingabe vor QR-Schritt, Mindestens 1 sichtbares Zeichen, Maximal 32 Codepoints, Default-Vorbelegung beim Re-Pairing aus letztem Wert, Persistenz in DataStore, in Settings unter "Kanal" → "Dein Name" jederzeit änderbar). F-02 (Kanal-Auswahl beim Start) erhält Querverweis auf F-16.
+- `ui.md §8.3`: Erstnutzer-Flow um den Pairing-Schritt mit Namens-Eingabe erweitern. Klarstellen, dass die Reihenfolge ist: Willkommens-Dialog (Update-Check) → Screen 1 (Kanal-Wahl) → **Namens-Eingabe-Screen (§4)** → QR-Scanner / QR-Anzeige → Hauptscreen.
+- `ui.md §3` bzw. neuer Screen-Abschnitt: ASCII-Mockup für den Namens-Eingabe-Screen ergänzen. Layout: Eingabefeld (groß, zentriert, Touch-target ≥ 48 dp), Hilfetext "Dieser Name erscheint bei anderen Peers im Kanal", primärer "Weiter"-Button (deaktiviert bei leerer Eingabe), sekundärer "Zurück"-Pfeil. Beim Re-Pairing-Kontext zusätzlicher Hinweis: "Du kannst den Namen pro Kanal anpassen."
+- `architecture.md §6.1`: Klarstellen, dass `dname` aus Pairing-Flow stammt und niemals leer broadcastet wird. Fallback-Regel `Peer-{first8hex(pk)}` für Korruptions-/Migrations-Edge-Case dokumentieren. Hinweis ergänzen: kein Geräte-Hostname als Fallback (Datenschutz).
+- Dokumentierer aktualisiert ggf. die i18n-Glossar-Einträge in `.claude/agents/documenter.md` für die neuen UI-Strings (Eingabefeld-Hinweis, Validierungs-Fehlertexte).
+
+Implementierung: Frühestmöglich in **Release v0.1.0** als Skeleton (UI-Screen mit Validierung, persistiert in DataStore, vorerst ohne tatsächliche Discovery-Anbindung — die kommt mit v0.2.0). Damit ist der Flow von Anfang an korrekt geformt und es gibt keine spätere Reorganisation des Onboardings.
+
+**Nachtrag 2026-04-27 (nach Architekt-Review):** Eingabefeld ist leer (keine Vorbelegung). Placeholder-Text statt Default-Wert. Pflichtfeld (≥ 1 sichtbares Zeichen). 32 Codepoints max. Fallback bei Korruption: `Peer-{first8hex(pk)}`. Re-Pairing zeigt Screen mit letztem gespeichertem Wert. Name ist global, nicht pro Kanal. Persistenz und Validierungslogik leben in einem neuen Modul `:core:identity` (`IdentityRepository`); `:feature:pairing`, `:feature:settings` und `:service:discovery` greifen ausschließlich darüber zu. Eingehende `dname`-Werte fremder Peers werden in `:service:discovery` sanitisiert (NFC-Normalisierung, Strip Bidi-Override, Combining-Marks-Begrenzung, Truncation auf 32 Codepoints) — siehe neues Audit-Finding F-PRIV-04.
 
 ## Offene Fragen
 

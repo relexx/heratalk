@@ -46,7 +46,7 @@ Severity-Skala: **Critical** (sofortige Action), **High** (vor v1.0.0 fixen), **
 
 **Mitigation (eingearbeitet):** QR-Code enthält jetzt `expires`-Feld mit 5 min Gültigkeit (`docs/security.md §3.1`). Beim Scan wird `expires` geprüft, bei Ablauf erscheint Warnung mit explizitem Override.
 
-**Status:** ✓ Fixed in `docs/security.md §3.1` und `docs/ui.md §4`. Aufnahme in `docs/requirements.md` als F-02-Verfeinerung.
+**Status:** ✓ Fixed in `docs/security.md §3.1` und `docs/ui.md §5`. Aufnahme in `docs/requirements.md` als F-02-Verfeinerung.
 
 ### F-CRYPTO-04 · Domain-Separation ohne Versionierung war fragil · Medium → Fixed
 
@@ -70,7 +70,7 @@ Severity-Skala: **Critical** (sofortige Action), **High** (vor v1.0.0 fixen), **
 
 **Befund:** Ein QR-Code-Anzeige-Screen ohne `WindowManager.LayoutParams.FLAG_SECURE` erlaubt anderen Apps mit Screen-Capture-Rechten oder System-Screenshots, das `channel_secret` zu erfassen. Beispiele: Bildschirmaufnahme-Apps, Backup-Tools, einige Launcher mit Screenshot-Galerie.
 
-**Mitigation (eingearbeitet):** `docs/security.md §3.3` und `docs/ui.md §4` schreiben `FLAG_SECURE` auf dem QR-Anzeige-Screen vor. System-UI zeigt im Recents-Switcher dann nur einen schwarzen Platzhalter.
+**Mitigation (eingearbeitet):** `docs/security.md §3.3` und `docs/ui.md §5` schreiben `FLAG_SECURE` auf dem QR-Anzeige-Screen vor. System-UI zeigt im Recents-Switcher dann nur einen schwarzen Platzhalter.
 
 **Status:** ✓ Fixed. Aufnahme in `docs/requirements.md` als F-02-Verfeinerung.
 
@@ -178,7 +178,7 @@ Severity-Skala: **Critical** (sofortige Action), **High** (vor v1.0.0 fixen), **
 
 **Befund:** Frühe Version des Manifests listete alle Permissions, die die App *jemals* brauchen könnte — `CAMERA`, `RECORD_AUDIO`, `FOREGROUND_SERVICE_MICROPHONE`, `BLUETOOTH_CONNECT`, `USE_FULL_SCREEN_INTENT` — als gleichwertig. Folge für den Nutzer: Schon beim ersten App-Start oder spätestens beim ersten Kanal-Beitritt Anhäufung von Permission-Dialogen ohne nachvollziehbaren Grund. Das schlägt Vertrauen, und ein sicherheitsbewusster Nutzer lehnt alles ab — danach funktioniert die App nicht mehr wie erwartet. Gleichzeitig verstößt es gegen das Prinzip der minimalen Privilegien: Ein Kanal-Mitglied, das nur passiv zuhört, braucht weder Mikrofon noch Kamera.
 
-**Mitigation (eingearbeitet):** Feature-basiertes Permission-Modell (`docs/requirements.md F-11`, `docs/architecture.md §11.2`, `docs/ui.md §7.2`). Jede Permission ist einem konkreten Feature zugeordnet; die Permission-Abfrage erfolgt ausschließlich beim ersten Aktivieren des Features. Der Foreground-Service wechselt seinen Typ dynamisch zwischen `connectedDevice` (Default, kein Mikrofon) und `microphone` (nur wenn VOX oder Hardware-PTT aktiv ist). Nutzer, die nur zuhören wollen, brauchen gar keine sensitive Runtime-Permission außer `POST_NOTIFICATIONS`.
+**Mitigation (eingearbeitet):** Feature-basiertes Permission-Modell (`docs/requirements.md F-11`, `docs/architecture.md §11.2`, `docs/ui.md §8.2`). Jede Permission ist einem konkreten Feature zugeordnet; die Permission-Abfrage erfolgt ausschließlich beim ersten Aktivieren des Features. Der Foreground-Service wechselt seinen Typ dynamisch zwischen `connectedDevice` (Default, kein Mikrofon) und `microphone` (nur wenn VOX oder Hardware-PTT aktiv ist). Nutzer, die nur zuhören wollen, brauchen gar keine sensitive Runtime-Permission außer `POST_NOTIFICATIONS`.
 
 **Status:** ✓ Fixed. Implementierungs-Pflicht in v0.1.0 (Manifest und Erstnutzer-Flow), v0.3.0 (RECORD_AUDIO beim PTT), v0.7.0 (VOX-Toggle), v1.0.0 (Hardware-PTT-Toggle).
 
@@ -320,6 +320,26 @@ Severity-Skala: **Critical** (sofortige Action), **High** (vor v1.0.0 fixen), **
 **Mitigation:** Multicast-Receive ausschließlich in `:service:discovery`. Strikte Filterung nach Service-Typ und Channel-ID-Hash, **bevor** irgendwelche weiteren Verarbeitungs-Pfade aktiviert werden. Keine Logs auf nicht-passende Multicast-Pakete.
 
 **Status:** ⚠ Open — verbindliche Regel im `.claude/rules.md` (Architektur-Regel).
+
+### F-PRIV-04 · Empfangs-Sanitisierung für eingehende `dname`-Werte · Medium
+
+**Befund:** Bösartige Peers könnten in den `dname`-Feldern (mDNS-TXT-Record und UDP-Broadcast-Beacon) Unicode-Tricks unterbringen, die andere HeraTalk-Instanzen in der UI angezeigt bekommen, ohne sanitisiert zu sein:
+
+- **RTL-/Bidi-Override** (`U+202A`–`U+202E`, `U+2066`–`U+2069`): Buchstaben-Reihenfolge in der Anzeige umkehren, Phishing-Namen erzeugen ("alice" als "ecila" rendern oder Dateinamen-Endungen umdrehen).
+- **Zalgo-Combining-Marks**: beliebig viele kombinierende Diakritika auf einem Base-Codepoint stapeln, sprengen Zeilenhöhe und überdecken benachbarte UI-Elemente.
+- **Lookalike-Codepoints** (Cyrillic `а` vs. Latin `a` etc.): Identitäts-Spoofing eines bekannten Peers.
+- **Übergroße UTF-8-Sequenzen**: 4-Byte-Codepoints können das App-seitige Längenfeld umgehen, wenn nur Byte-Länge geprüft wird.
+
+**Mitigation:** Sanitisierungs-Pipeline in `:service:discovery` gemäß `architecture.md §6.1` ("Empfangs-Sanitisierung für `dname`"):
+1. NFC-Normalisierung
+2. Strip Bidi-Override-Codepoints (`U+202A`–`U+202E`, `U+2066`–`U+2069`)
+3. Combining-Marks auf max. 2 pro Base-Codepoint begrenzen
+4. Truncation auf 32 Codepoints
+5. Wenn nach Sanitisierung leer → `Peer-{first8hex(pk)}`
+
+Sanitisierung ist verpflichtend vor jeder UI-Darstellung; das Original wird verworfen. Lookalike-Detection (Confusables) bleibt out of scope für MVP — Nutzer sollen auf den `pk`-Fingerprint achten, nicht auf den Display-Namen.
+
+**Status:** 📋 Offen — Implementierung vor v0.5.0 erforderlich (parallel zur ersten echten Discovery-Anbindung in v0.2.0; spätestens mit dem Pairing-Roll-out in v0.5.0 aktiv).
 
 ## 10. Findings — Architektur-Konsistenz
 

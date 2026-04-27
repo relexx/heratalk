@@ -20,6 +20,7 @@ Kompakte Liste aller Anforderungen mit Akzeptanzkriterien und Umsetzungshinweise
 - QR-Code enthält `channel_secret` (32 Byte zufällig) und Display-Name.
 - Nach Pairing wird `channel_secret` verschlüsselt im Android Keystore gespeichert.
 - Kanal-Wechsel ist in den Settings möglich.
+- Vor dem QR-Schritt wird der Display-Name eingegeben (siehe F-16).
 **Umsetzung:** ML Kit Barcode (Scan), ZXing (Generierung), URI-Schema `heratalk://join?v=1&name=…&secret=…`.
 
 ### F-03 — Broadcast im Kanal
@@ -105,7 +106,7 @@ Kompakte Liste aller Anforderungen mit Akzeptanzkriterien und Umsetzungshinweise
 - Hardware-PTT-Aktivierung verhält sich analog zu VOX (siehe F-13).
 - Wake-on-Direktruf (Bildschirm einschalten bei eingehendem Ruf) ist opt-in über Settings-Toggle und fragt `USE_FULL_SCREEN_INTENT` erst beim Einschalten.
 - Jeder Permission-gebundene Toggle in Settings zeigt einen Erklärtext, was er aktiviert und welche Auswirkung er hat (Batterie, Privatsphäre).
-**Umsetzung:** Siehe `docs/architecture.md §11.2` (Feature-zu-Permission-Matrix) und `docs/ui.md §7` (Settings-Unterabschnitt "Features und Berechtigungen"). Der Foreground-Service kann seinen Typ zur Laufzeit atomar wechseln durch erneuten Aufruf von `startForeground(id, notification, newType)`, gekapselt in `:service:lifecycle` (Details und Code-Snippet in `docs/architecture.md §11.3`).
+**Umsetzung:** Siehe `docs/architecture.md §11.2` (Feature-zu-Permission-Matrix) und `docs/ui.md §8` (Settings-Unterabschnitt "Features und Berechtigungen"). Der Foreground-Service kann seinen Typ zur Laufzeit atomar wechseln durch erneuten Aufruf von `startForeground(id, notification, newType)`, gekapselt in `:service:lifecycle` (Details und Code-Snippet in `docs/architecture.md §11.3`).
 
 ### F-12 — Verhalten bei eingehendem Direktruf während eigener Sendung
 
@@ -140,6 +141,22 @@ Kompakte Liste aller Anforderungen mit Akzeptanzkriterien und Umsetzungshinweise
 - Theme-Wechsel ist sofort wirksam, kein App-Neustart erforderlich.
 - Alle Screens respektieren das Theme. Insbesondere die PTT-Button-States und die Farbkodierung (grün/blau/gelb/rot) bleiben in beiden Themes klar erkennbar und erfüllen WCAG-AA-Kontrastanforderungen.
 **Umsetzung:** Compose mit `MaterialTheme(colorScheme = ...)`-Switch. Theme-Wahl persistiert in DataStore. Farbpalette separat für Dark und Light definiert in `:core:ui`. Nicht im MVP, Ziel v1.0.
+
+### F-16 — Display-Name-Eingabe beim Onboarding
+
+**Anforderung:** Beim ersten App-Start gibt der Nutzer seinen Display-Namen ein, bevor er einem Kanal beitritt oder einen erstellt. Der Name erscheint bei anderen Peers in der Peer-Liste und im Direktruf-Screen. Der Name ist global (nicht pro Kanal) — Multi-Channel ist im MVP nicht vorgesehen.
+**Akzeptanz:**
+- Name wird im Pairing-Flow abgefragt, vor QR-Scan oder QR-Anzeige.
+- Eingabefeld startet **leer** (keine Vorbelegung, kein `Build.MODEL`, kein Geräte-Hostname). Im Feld erscheint Placeholder-Text (z. B. "z. B. Anna oder Werkstatt-Tablet"), der bei Eingabe verschwindet.
+- Pflichtfeld: Name darf nicht leer sein; der "Weiter"-Button ist deaktiviert, bis ≥ 1 sichtbares Zeichen eingegeben wurde (rein aus Whitespace bestehende Eingaben gelten als leer).
+- Maximallänge: **32 Unicode-Codepoints** (App-seitige Begrenzung; das UDP-Beacon-Protokoll erlaubt bis zu 255 Byte via 1-Byte-Längenfeld in `docs/architecture.md §6.1`).
+- Name wird persistent in DataStore gespeichert und ist über Settings → Kanal → "Dein Name" jederzeit änderbar.
+- Änderung in Settings wirkt sofort auf Discovery: mDNS wird neu registriert (Debounce 300 ms), der Broadcast-Beacon übernimmt den neuen Wert beim nächsten Tick (alle 3 s).
+- **Re-Pairing:** Beim Kanal-Wechsel über Settings wird der Namens-Eingabe-Screen angezeigt mit dem zuletzt gespeicherten Wert vorbelegt (editierbar). Der Screen wird **nicht** übersprungen.
+- **Fallback bei Korruption:** Sollte `dname` durch Datenkorruption oder Migration leer sein, wird `Peer-{first8hex(pk)}` (z. B. `Peer-a7f32c91`) gesendet — **niemals** `Build.MODEL` oder Geräte-Hostname.
+- **Empfangs-Sanitisierung:** Eingehende `dname`-Werte von anderen Peers werden in `:service:discovery` sanitisiert (NFC-Normalisierung, Strip Bidi-Override-Codepoints, Combining-Marks-Begrenzung, Truncation auf 32 Codepoints), bevor sie an die UI weitergegeben werden. Details siehe `docs/architecture.md §6.1`.
+- Im `dname`-Feld (mDNS TXT) und im UDP-Broadcast-Beacon wird immer der aktuelle Name oder Fallback gesendet.
+**Umsetzung:** Persistenz und Validierungslogik liegen in `:core:identity` (`IdentityRepository`, DataStore-Key `display_name`), nicht direkt in `:feature:pairing`. Eingabe-UI in `:feature:pairing`. Anzeige und Änderung in `:feature:settings`. `:service:discovery` subscribt auf `IdentityRepository.displayName` als `Flow` und reagiert reaktiv. Alle drei Module greifen ausschließlich über `:core:identity` zu.
 
 ### F-15 — Internationalisierung (i18n)
 
