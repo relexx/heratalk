@@ -57,9 +57,9 @@ heratalk/
 │   ├── security.md
 │   ├── protocol.md                   # wird mit v0.5.0 gefüllt
 │   └── adrs/
-│       ├── 0001-kotlin-native.md
+│       ├── 0001-peer-discovery.md
 │       ├── 0002-noise-protocol.md
-│       └── 0003-srtp-custom-implementation.md
+│       └── 0003-audio-codec.md
 ├── build.gradle.kts
 ├── settings.gradle.kts
 ├── gradle.properties
