@@ -98,5 +98,5 @@ style:
   WildcardImport:
     active: true
 
-# TODO(developer): Custom rule HardcodedStringInComposable will be implemented in Phase A8 or as
-# a follow-up PR. Until then, Lint's HardcodedText error rule covers this check.
+# TODO: Custom rule HardcodedStringInComposable — tracked in GitHub issue #12.
+# Until then, Lint's HardcodedText error rule covers this check.
