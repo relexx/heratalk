@@ -2,15 +2,31 @@
 
 > **Lebendes Dokument**, gepflegt vom Orchestrator-Agent und ergänzt vom Dokumentierer. Enthält den aktuellen Stand, alle getroffenen Entscheidungen und offene Risiken. Bei jedem PR, der Architektur oder Release-Status berührt, wird dieses Dokument mit aktualisiert.
 
-Stand: Release v0.1.0 (Grundgerüst) — Branch `release/v0.1.0` ist angelegt, Implementierungsplan liegt unter `docs/impl-plan-v0.1.0.md` vor. Entwickler-Phase startet als Nächstes.
+Stand: Release v0.1.0 (Grundgerüst) — Branch `release/v0.1.0`, Phasen A1 (Build-System) und A2 (`:core:model`) abgeschlossen, ADR-0004 (Adapter-Schichten in `:core:*`) gemerged. Phase A3 (`:core:logging`) ist die nächste Aktion.
 
 ## Aktueller Release
 
-**In Arbeit:** v0.1.0 — Grundgerüst (Kick-off mit ADR-Sanierung 2026-04-30, Branch und Plan 2026-04-30)
+**In Arbeit:** v0.1.0 — Grundgerüst (Kick-off 2026-04-30, A1+A2 abgeschlossen 2026-04-30, A3 gestartet 2026-04-30)
 **Nächster geplanter Release:** v0.2.0 — PoC Paketversand
 **Letzter abgeschlossener Release:** (noch keiner)
 **Aktiver Branch:** `release/v0.1.0`
-**Nächster Schritt:** Entwickler-Agent beginnt mit Phase A1 des Implementierungsplans (`settings.gradle.kts` aktualisieren, Convention-Plugin-Entscheidung, dann Module von innen nach außen).
+**Nächster Schritt:** Entwickler-Agent implementiert Phase A3 — `:core:logging` (Logger-Interface, AndroidLogcatLogger, RingBufferLogger mit MutableSharedFlow, CompositeLogger). Danach Phase A4 (`:core:crypto` Skeleton).
+
+## Fortschritt v0.1.0 — Phasen-Tracking
+
+| Phase | Inhalt | Status |
+|-------|--------|--------|
+| A1 | Build-System-Grundgerüst (`settings.gradle.kts`, Convention-Plugins, `lint.xml`, `detekt.yml`, Spotless) | ✅ abgeschlossen, vom Architekten freigegeben |
+| A2 | `:core:model` (Domain-Datenklassen, `DisplayName`-Validierung, JUnit-5-Tests) | ✅ abgeschlossen, alle Tests grün, Copilot-Feedback eingearbeitet |
+| A3 | `:core:logging` (Logger-Interface, AndroidLogcatLogger, RingBufferLogger, CompositeLogger) | 🏗 in Arbeit |
+| A4 | `:core:crypto` (Skeleton, Type-Stubs mit `TODO("v0.5.0/v0.6.0")`) | 📋 geplant |
+| A5 | `:core:identity` (DataStore, `IdentityRepository`, Validierung) | 📋 geplant |
+| B1 | `:core:ui` (Material-3-Theme, gemeinsame Composables, Strings) | 📋 geplant |
+| B2 | Lint-Enforcement-Smoketest | 📋 geplant |
+| C1–C6 | Service- und Feature-Skelette | 📋 geplant |
+| D1–D2 | Koin-DI-Graph | 📋 geplant |
+| E1–E4 | `:app`-Einstiegspunkt | 📋 geplant |
+| F1–F3 | CI, Doku-Sync, Geräte-Test | 📋 geplant |
 
 ## Fortschritt pro Komponente
 
@@ -23,8 +39,11 @@ Stand: Release v0.1.0 (Grundgerüst) — Branch `release/v0.1.0` ist angelegt, I
 | CI/CD | 📋 spezifiziert | In v0.1.0 aufsetzen und grün bekommen |
 | Claude-Code-Agenten | ✅ definiert | Einsatzbereit ab Projektstart |
 | `:app`-Modul | 📋 geplant | v0.1.0 |
-| `:core:*` | 📋 geplant | v0.1.0 (Skeleton), fachlich ab v0.5.0 |
-| `:core:identity` | 📋 geplant | v0.1.0 (DataStore-Key + Interface), Sanitisierung ab v0.5.0 |
+| `:core:model` | ✅ implementiert (v0.1.0/A2) | Stabil; Domain-Datenklassen werden bei Bedarf in Folge-Releases erweitert |
+| `:core:logging` | 🏗 in Arbeit (v0.1.0/A3) | Logger-Interface + AndroidLogcatLogger + RingBufferLogger + CompositeLogger |
+| `:core:crypto` | 📋 geplant (v0.1.0/A4 Skeleton) | Type-Stubs in v0.1.0, fachlich ab v0.5.0/v0.6.0 |
+| `:core:ui` | 📋 geplant (v0.1.0/B1) | Material-3-Theme + gemeinsame Composables |
+| `:core:identity` | 📋 geplant (v0.1.0/A5) | DataStore-Key + Interface; Sanitisierung fremder Namen ab v0.5.0 |
 | `:service:discovery` | 📋 geplant | v0.2.0 |
 | `:service:transport` | 📋 geplant | v0.2.0 (Skeleton), adaptiv ab v0.9.0 |
 | `:service:signaling` | 📋 geplant | v0.5.0 |
