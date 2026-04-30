@@ -17,9 +17,9 @@ android {
 }
 
 kotlin {
+    explicitApi()
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
-        freeCompilerArgs.add("-Xexplicit-api=strict")
     }
 }
 

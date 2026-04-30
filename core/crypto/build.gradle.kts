@@ -9,8 +9,8 @@ java {
 }
 
 kotlin {
+    explicitApi()
     compilerOptions {
-        freeCompilerArgs.add("-Xexplicit-api=strict")
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
     }
 }
