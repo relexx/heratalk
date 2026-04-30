@@ -19,6 +19,7 @@ dependencies {
     // Note: BouncyCastle will be added in v0.5.0 when crypto logic is implemented.
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 tasks.test {
