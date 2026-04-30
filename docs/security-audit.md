@@ -1,6 +1,8 @@
 # HeraTalk — Sicherheits-Audit
 
 > Systematische Prüfung aller Projektdokumente auf bisher unaufgedeckte Sicherheitsaspekte. Stand: 2026-04-24, Audit-Runde 1.
+>
+> **Hinweis (2026-04-30):** ADR-0003 referenziert ab 2026-04-30 den Audio-Codec (Opus). SRTP-/Security-Details: siehe `architecture.md §9`. Sämtliche älteren Querverweise auf "ADR 0003" in diesem Dokument im SRTP-Kontext sind als veraltet zu lesen — die normative Quelle ist `architecture.md §9`.
 
 ## 1. Audit-Methodik
 
@@ -206,9 +208,9 @@ Severity-Skala: **Critical** (sofortige Action), **High** (vor v1.0.0 fixen), **
 
 **Befund:** Eine naive Implementierung von Tag-Vergleich (`tag1.contentEquals(tag2)` mit Early-Return) leakt durch Timing, wo der Unterschied zuerst auftritt — angreifbar für Tag-Forgery.
 
-**Mitigation:** Konstantzeit-Vergleich (`MessageDigest.isEqual(tag1, tag2)` in JCE — ist konstantzeit-implementiert). Verbindlich in `:core:crypto`. ADR 0003 muss das festhalten.
+**Mitigation:** Konstantzeit-Vergleich (`MessageDigest.isEqual(tag1, tag2)` in JCE — ist konstantzeit-implementiert). Verbindlich in `:core:crypto`. Normative Verankerung: `architecture.md §9` und `.claude/rules.md` Regel 12. *(Anm. 2026-04-30: frühere Notiz „ADR 0003 muss das festhalten" ist hinfällig — ADR-0003 ist nun die Audio-Codec-Entscheidung.)*
 
-**Status:** ⚠ Open — verbindliche Regel in `.claude/rules.md` und ADR 0003.
+**Status:** ⚠ Open — verbindliche Regel in `.claude/rules.md` und `architecture.md §9`.
 
 ### F-SIDE-03 · Audio-Pegel-Anzeige (RMS) verrät Content · Low
 
@@ -263,9 +265,9 @@ Severity-Skala: **Critical** (sofortige Action), **High** (vor v1.0.0 fixen), **
 **Mitigation:**
 1. Empfohlen: eigener CMake-Build aus dem offiziellen [opus-Sourcecode](https://gitlab.xiph.org/xiph/opus) (bekannter Maintainer, BSD-3-Clause, dieselbe Lizenz wie HeraTalk).
 2. Alternative: gut-verifizierter Maven-AAR mit gepinnter Version und Hash.
-3. ADR 0003 muss diese Wahl explizit festhalten (Selber-Build vs. AAR).
+3. ADR-0003 (Audio-Codec) hält die Wahl AAR vs. Selbstbau explizit fest.
 
-**Status:** ⚠ Open — Architect-Entscheidung in ADR 0003.
+**Status:** ✓ Adressiert — Architect-Entscheidung in ADR-0003 (Audio-Codec) dokumentiert; finale AAR-vs.-Selbstbau-Wahl steht vor v0.3.0.
 
 ### F-SUPPLY-04 · Release-Signatur-Verifikation für Endnutzer schwierig · Low
 
@@ -402,7 +404,7 @@ Diese sind ergänzende Tickets für den Orchestrator zur Aufnahme in `releases.m
 - [ ] Konstantzeit-Tag-Vergleich verifizieren (F-SIDE-02)
 - [ ] CBR-only-Opus statt VBR (F-SIDE-04) — Architektur-Update
 - [ ] Versions-präfixierte HKDF-Info-Strings (F-CRYPTO-04 — bereits fixed)
-- [ ] ADR 0003 zu SRTP-Implementierung mit Konstantzeit-Anforderung (F-ARCH-02)
+- [ ] Konstantzeit-Anforderung für SRTP-Tag-Vergleich verbindlich in `architecture.md §9` und `.claude/rules.md` (F-ARCH-02). *(Hinweis: frühere Notiz „ADR 0003" bezog sich auf den damaligen SRTP-ADR; ADR-0003 ist seit 2026-04-30 die Audio-Codec-Entscheidung.)*
 
 ### Vor v0.9.0 (Robustheit)
 

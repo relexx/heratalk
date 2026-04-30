@@ -10,31 +10,40 @@
 
 HeraTalk arbeitet brokerlos und ohne Public-Key-Infrastruktur. Es gibt keinen Anker, gegen den ein Zertifikat geprüft werden könnte, und es gibt keine zentrale Identitätsstelle, die "dieser Schlüssel gehört zu Alice" bestätigt. Trotzdem müssen sich zwei Geräte gegenseitig authentifizieren, einen gemeinsamen Sitzungsschlüssel aushandeln und gegen aktive Man-in-the-Middle-Angriffe geschützt sein.
 
-Im HeraTalk-Modell existiert das gemeinsame Geheimnis als **Channel-Secret**, das beim Pairing via QR-Code übertragen wird (`docs/architecture.md §9`). Aus diesem Channel-Secret leitet sich:
+Im HeraTalk-Modell entsteht das gemeinsame Geheimnis — das **Channel-Secret** — erst durch den **out-of-band-Austausch via QR-Code** (`docs/architecture.md §9`). Aus diesem Channel-Secret leitet sich anschließend:
 
 - die Channel-ID (zum Filtern nicht passender Peers),
 - der PSK für laufende Sessions,
 - und die Bindung beider Peers an dieselbe Gruppe.
 
-Vor dem ersten Pairing existiert dieses Geheimnis nicht — d. h. das Initial-Pairing braucht einen anderen Handshake-Modus als die laufende Session.
+**Vor dem QR-Austausch** existiert dieses Geheimnis nicht — der Initial-Handshake (Phase 1) muss daher einen Modus verwenden, der gleichzeitig den frisch übermittelten PSK kryptographisch in den Handshake-State einmischt und die Static-Public-Keys beider Seiten erst während des Handshakes austauscht. **Nach dem QR-Austausch** ist das Channel-Secret auf beiden Geräten verfügbar; ab diesem Zeitpunkt darf Phase 2 (regulärer Session-Handshake) genutzt werden, bei dem zusätzlich die Static-Public-Keys gepinnt sind.
 
 Aus dieser Situation entsteht ein scheinbarer Widerspruch in der bisherigen Doku-Lage:
 
-- Bisheriges ADR-0002 nannte `Noise_XX_25519_AESGCM_SHA256` (XX-Pattern, ohne Vorab-Geheimnis).
+- Bisheriges ADR-0002 nannte `Noise_XX_25519_AESGCM_SHA256` (reines XX-Pattern, ohne PSK-Bindung).
 - `docs/architecture.md §9` nennt `Noise_KKpsk0_25519_ChaChaPoly_SHA256` (KK-Pattern mit PSK).
 
-Beide Aussagen sind richtig, aber für **unterschiedliche Phasen**. Dieses ADR löst den Widerspruch auf und legt fest, welcher Handshake wann genutzt wird.
+Beide Aussagen sind richtig, aber für **unterschiedliche Phasen** — und das reine XX-Pattern bindet einen PSK nicht kryptographisch an den Handshake-State, sodass Phase 1 das `XXpsk2`-Variantenpattern verwenden muss. Dieses ADR löst den Widerspruch auf und legt fest, welcher Handshake wann genutzt wird.
 
 ## Entscheidung
 
 HeraTalk verwendet das **Noise Protocol Framework** mit zwei klar abgegrenzten Mustern:
 
-### Phase 1 — Initiales Pairing: `Noise_XX_25519_ChaChaPoly_SHA256`
+### Phase 1 — Initiales Pairing: `Noise_XXpsk2_25519_ChaChaPoly_SHA256`
 
 - Wird genau dann verwendet, wenn zwei Geräte sich zum ersten Mal verbinden und das Channel-Secret bisher nur über den **out-of-band**-Kanal (QR-Code) ausgetauscht wurde.
-- `XX` ist nötig, weil hier kein dauerhaftes Pinning der Static-Public-Keys vorliegt — die Public-Keys werden im Handshake selbst übermittelt.
-- Authentizität wird durch den **Code-Match** im QR-Code-Flow hergestellt: das Channel-Secret aus dem QR mündet in einen `psk` über `HKDF(channel_secret, "psk")`, und der `XX`-Handshake ist über diesen PSK gebunden (siehe Hinweis weiter unten zur PSK-Variante).
-- Direkt nach dem ersten erfolgreichen `XX`-Handshake werden die übermittelten Static-Public-Keys gepinnt und persistiert — ab da gilt für diesen Peer Phase 2.
+- Das `XX`-Basispattern ist nötig, weil hier kein dauerhaftes Pinning der Static-Public-Keys vorliegt — die Public-Keys werden im Handshake selbst übermittelt.
+- **Wichtig:** Das reine `XX`-Pattern integriert einen PSK **nicht** kryptographisch in den Handshake-State; eine externe Bindung des Channel-Secrets würde den MITM-Schutz durch den QR-Code nicht wirklich greifen lassen. HeraTalk verwendet daher die Variante **`XXpsk2`**: der PSK wird **nach** der zweiten Handshake-Nachricht in den Handshake-State eingemischt — also nachdem beide Ephemeral-Keys ausgetauscht wurden, aber bevor die Static-Keys final bestätigt sind.
+- Authentizität wird durch den **Code-Match** im QR-Code-Flow hergestellt: das Channel-Secret aus dem QR-Code wird über HKDF-SHA256 zum Noise-PSK abgeleitet. PSK-Ableitungs-Parameter:
+  - `IKM` (Input Keying Material): `channel_secret` (32 Byte aus QR-Code)
+  - `salt`: `""` (leer)
+  - `info`: `"HeraTalk Phase 1 Noise PSK"` (UTF-8)
+  - `L` (Output-Länge): 32 Byte
+
+  Das Ergebnis wird unverändert als Noise-PSK in den `XXpsk2`-Handshake eingespeist.
+- Direkt nach dem ersten erfolgreichen `XXpsk2`-Handshake werden die übermittelten Static-Public-Keys gepinnt und persistiert — ab da gilt für diesen Peer Phase 2.
+
+<!-- TODO(architect): align with ADR-0002 XXpsk2 — `architecture.md §9` referenziert noch `Noise_KKpsk0_25519_ChaChaPoly_SHA256` für Phase 2 (korrekt), nennt aber Phase 1 nicht explizit. Bei nächster Architektur-Doku-Runde Phase-1-Pattern explizit auf `XXpsk2` setzen. -->
 
 ### Phase 2 — Reguläre Channel-Session: `Noise_KKpsk0_25519_ChaChaPoly_SHA256`
 
@@ -57,12 +66,12 @@ Beide Handshake-Pfade werden in `:core:crypto` implementiert. Empfohlene Bibliot
 
 ```mermaid
 flowchart LR
-    QR[QR-Code: channel_secret] --> HKDF[HKDF]
+    QR[QR-Code: channel_secret] --> HKDF[HKDF-SHA256]
     HKDF --> CHANID[channel_id_hash]
-    HKDF --> PSK[psk]
+    HKDF --> PSK["psk (32 Byte)<br/>info='HeraTalk Phase 1 Noise PSK'"]
 
     subgraph Pairing["Phase 1 - Pairing"]
-        XX["Noise_XX_25519_ChaChaPoly_SHA256<br/>+ psk"]
+        XX["Noise_XXpsk2_25519_ChaChaPoly_SHA256"]
     end
 
     subgraph Session["Phase 2 - Reguläre Session"]
@@ -81,6 +90,7 @@ flowchart LR
 
 - Klare Trennung zwischen "wir kennen uns noch nicht" und "wir kennen uns" — beide haben angemessene Sicherheits-Eigenschaften.
 - Forward Secrecy in beiden Phasen (jedes Handshake erzeugt frische ephemere Keys).
+- **MITM-Schutz im initialen Pairing greift kryptographisch:** durch die `psk2`-Variante ist das aus dem QR-Code abgeleitete Channel-Secret in den Handshake-State eingemischt — ein Angreifer ohne QR-Code kann den Handshake nicht aushandeln.
 - Kompromittierung eines Static-Private-Keys allein reicht in Phase 2 nicht aus — der Angreifer braucht zusätzlich das Channel-Secret.
 - Keine PKI, keine Zertifikate, keine externen Trust-Anchors — passt zum brokerlosen Modell.
 - Property-basierte Tests gegen offizielle Noise-Test-Vektoren möglich.

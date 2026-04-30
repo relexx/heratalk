@@ -24,7 +24,7 @@ Eine Discovery-Schicht muss außerdem Metadaten über TXT-Records mitliefern (Ch
 
 Die primäre Discovery-Schicht ist **mDNS/DNS-SD über `android.net.nsd.NsdManager`**.
 
-- Service-Typ: `_heratalk._tcp.local.`
+- Service-Typ (für `NsdManager`): `_heratalk._tcp.` — die mDNS-Domain ist `local.`, aber **nicht** Teil des an `NsdManager` zu übergebenden Type-Strings. `NsdManager` setzt `local.` implizit; ein expliziter `.local.`-Suffix im Type-String führt auf vielen Android-Stacks zu einem fehlschlagenden `registerService`/`discoverServices`-Call.
 - TXT-Records gemäß `docs/architecture.md §6.1`: `ver`, `chan`, `pk`, `dname`.
 - Continuous-Discovery (Subscribe-Modell) — keine pollenden Suchen.
 - Reaktive Re-Registrierung bei Änderung des Display-Namens (Debounce 300 ms).

@@ -149,6 +149,8 @@ Die drei bestehenden ADRs wurden als inkonsistent und teilweise duplikativ zur A
 
 **Konsequenz:** Die alten Dateien `0001-kotlin-native.md` und `0003-srtp-custom-implementation.md` wurden gelöscht; `0002-noise-protocol.md` wurde überschrieben. Die Plattform- und SRTP-Entscheidungen leben weiter in diesem Entscheidungsprotokoll und in `architecture.md` — keine inhaltliche Information ist verloren gegangen.
 
+**Wichtig — Querverweis-Hinweis:** ADR-0003 ist ab jetzt ausschließlich die Audio-Codec-Entscheidung und darf nicht mehr als Referenz für SRTP-/Security-Themen gelesen werden. Die normativen SRTP-/Transport-Sicherheitsdetails werden nun in `architecture.md` festgehalten. Bestehende Querverweise auf "ADR 0003" in älteren Dokumenten (insbesondere `docs/security-audit.md`) im SRTP-Kontext sind als veraltet zu betrachten; die jeweilige normative Quelle ist `architecture.md §9`.
+
 ## Offene Fragen
 
 Keine zum aktuellen Zeitpunkt. Der Architekt-Agent pflegt diese Liste während der Implementierung.
