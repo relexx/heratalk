@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HeraTalk — Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 100%; height: 100%;
+  background: #0a0a0b;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Manrope', sans-serif;
+  overflow: hidden;
+}
+:root {
+  --bg-page: #0a0a0b;
+  --phone-bezel: #1a1a1d;
+  --phone-screen: #0f0f12;
+  --phone-screen-elevated: #17171b;
+  --phone-screen-higher: #1f1f24;
+  --text-primary: #f5f5f4;
+  --text-secondary: #a8a29e;
+  --text-tertiary: #706e6b;
+  --color-active: #16a34a;
+  --color-active-soft: rgba(22,163,74,0.14);
+  --color-active-glow: rgba(22,163,74,0.35);
+  --color-direct: #2563eb;
+  --color-direct-soft: rgba(37,99,235,0.14);
+  --color-direct-glow: rgba(37,99,235,0.35);
+  --color-warn: #ca8a04;
+  --color-warn-soft: rgba(202,138,4,0.14);
+  --color-error: #dc2626;
+  --color-error-soft: rgba(220,38,38,0.14);
+  --brand-start: #059669;
+  --brand-mid: #0891b2;
+  --brand-end: #2563eb;
+  --border-subtle: rgba(255,255,255,0.06);
+  --border-medium: rgba(255,255,255,0.10);
+}
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 var(--color-active-glow), 0 0 40px var(--color-active-glow); }
+  70% { box-shadow: 0 0 0 18px transparent, 0 0 40px var(--color-active-glow); }
+  100% { box-shadow: 0 0 0 0 transparent, 0 0 40px var(--color-active-glow); }
+}
+@keyframes pulse-ring-blue {
+  0% { box-shadow: 0 0 0 0 var(--color-direct-glow), 0 0 40px var(--color-direct-glow); }
+  70% { box-shadow: 0 0 0 18px transparent, 0 0 40px var(--color-direct-glow); }
+  100% { box-shadow: 0 0 0 0 transparent, 0 0 40px var(--color-direct-glow); }
+}
+@keyframes waveform {
+  0%,100% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1); }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+</style>
+</head>
+<body>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+// ── Design tokens as JS ──────────────────────────────────────────────────────
+const C = {
+  screen: '#0f0f12',
+  elevated: '#17171b',
+  higher: '#1f1f24',
+  text: '#f5f5f4',
+  textSec: '#a8a29e',
+  textTer: '#706e6b',
+  green: '#16a34a',
+  greenSoft: 'rgba(22,163,74,0.14)',
+  greenGlow: 'rgba(22,163,74,0.35)',
+  blue: '#2563eb',
+  blueSoft: 'rgba(37,99,235,0.14)',
+  blueGlow: 'rgba(37,99,235,0.35)',
+  yellow: '#ca8a04',
+  yellowSoft: 'rgba(202,138,4,0.14)',
+  red: '#dc2626',
+  redSoft: 'rgba(220,38,38,0.14)',
+  border: 'rgba(255,255,255,0.06)',
+  borderMed: 'rgba(255,255,255,0.10)',
+};
+
+const MONO = "'JetBrains Mono', monospace";
+
+// ── Tiny helpers ─────────────────────────────────────────────────────────────
+function Mono({ children, size = 11, color = C.textTer, style = {}, ...p }) {
+  return <span style={{ fontFamily: MONO, fontSize: size, color, ...style }} {...p}>{children}</span>;
+}
+
+function Avatar({ initials, size = 36, gradient = `linear-gradient(135deg,#059669,#2563eb)`, ring, style = {} }) {
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: '50%',
+      background: gradient,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontWeight: 700, fontSize: size * 0.33, color: '#fff', flexShrink: 0,
+      boxShadow: ring ? `0 0 0 2px ${ring}, 0 0 12px ${ring}55` : 'none',
+      transition: 'box-shadow 0.3s',
+      ...style
+    }}>{initials}</div>
+  );
+}
+
+function Toggle({ on, onToggle }) {
+  return (
+    <div onClick={onToggle} style={{
+      width: 38, height: 22, background: on ? C.green : C.borderMed,
+      borderRadius: 100, position: 'relative', flexShrink: 0,
+      cursor: 'pointer', transition: 'background 0.2s'
+    }}>
+      <div style={{
+        position: 'absolute', top: 2, left: on ? 18 : 2,
+        width: 18, height: 18, background: '#fff', borderRadius: '50%',
+        transition: 'left 0.2s'
+      }} />
+    </div>
+  );
+}
+
+function StatusBar({ time = '9:41' }) {
+  return (
+    <div style={{
+      height: 28, display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+      padding: '0 18px', flexShrink: 0
+    }}>
+      <Mono size={11} color={C.text} style={{ fontWeight: 500 }}>{time}</Mono>
+      <Mono size={11} color={C.textSec} style={{ letterSpacing: 2 }}>▲ ●●● 87%</Mono>
+    </div>
+  );
+}
+
+function NavBar({ onHome, onBack, onMenu }) {
+  return (
+    <div style={{
+      height: 40, display: 'flex', alignItems: 'center', justifyContent: 'space-around',
+      padding: '0 32px', flexShrink: 0, gap: 0
+    }}>
+      {[['◁', onBack], ['●', onHome], ['■', onMenu]].map(([icon, fn], i) => (
+        <div key={i} onClick={fn} style={{
+          width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: C.textTer, fontSize: 14, cursor: 'pointer'
+        }}>{icon}</div>
+      ))}
+    </div>
+  );
+}
+
+function AppHeader({ title, sub, netOk = true, onSettings, onBack }) {
+  return (
+    <div style={{
+      padding: '6px 10px 6px 4px', display: 'flex',
+      justifyContent: 'space-between', alignItems: 'center',
+      borderBottom: `1px solid ${C.border}`, flexShrink: 0, gap: 4
+    }}>
+      {/* Back button — 44px touch target */}
+      {onBack
+        ? <div onClick={onBack} style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={C.textSec} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </div>
+        : <div style={{ width: 44, height: 44, flexShrink: 0 }} />
+      }
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontWeight: 700, fontSize: 15, letterSpacing: '-0.01em', color: C.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{title}</div>
+        <Mono size={9} color={C.textTer} style={{ textTransform: 'uppercase', letterSpacing: '0.15em', display: 'block', marginTop: 2 }}>{sub}</Mono>
+      </div>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px',
+        background: netOk ? C.greenSoft : C.yellowSoft,
+        borderRadius: 8, flexShrink: 0
+      }}>
+        <div style={{ width: 7, height: 7, borderRadius: '50%', background: netOk ? C.green : C.yellow, boxShadow: netOk ? `0 0 6px ${C.greenGlow}` : 'none' }} />
+        <Mono size={10} color={netOk ? C.green : C.yellow} style={{ fontWeight: 600 }}>{netOk ? 'LAN OK' : 'WEAK'}</Mono>
+      </div>
+      {onSettings && (
+        <div onClick={onSettings} style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={C.textSec} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── PTT Button ───────────────────────────────────────────────────────────────
+function PTTButton({ mode = 'idle', color = 'green', onPress, onRelease, timer, label }) {
+  const isActive = mode === 'active';
+  const isDirect = color === 'blue';
+  const c = isDirect ? C.blue : C.green;
+  const cSoft = isDirect ? C.blueSoft : C.greenSoft;
+  const cGlow = isDirect ? C.blueGlow : C.greenGlow;
+
+  return (
+    <div style={{
+      padding: '10px 14px 12px',
+      borderTop: `1px solid ${C.border}`,
+      background: C.screen,
+      flexShrink: 0,
+      zIndex: 5
+    }}>
+      <div
+        onPointerDown={onPress}
+        onPointerUp={onRelease}
+        onPointerLeave={onRelease}
+        style={{
+          width: '100%', height: 64, borderRadius: 20,
+          background: isActive ? c : cSoft,
+          border: `2px solid ${c}`,
+          display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
+          cursor: 'pointer', userSelect: 'none', touchAction: 'none',
+          transition: 'all 0.15s ease',
+          animation: isActive ? `${isDirect ? 'pulse-ring-blue' : 'pulse-ring'} 1.5s infinite` : 'none',
+          boxShadow: isActive ? `0 0 24px ${cGlow}` : 'none',
+        }}
+      >
+        <span style={{ fontSize: 22, filter: isActive ? 'brightness(10)' : 'none' }}>🎙</span>
+        <Mono size={11} color={isActive ? '#fff' : c} style={{ textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 700 }}>
+          {isActive ? (timer ? `LIVE  ${timer}` : 'RELEASE') : (label || 'Hold to Speak')}
+        </Mono>
+        {isActive && (
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#fff', animation: 'pulse-ring 1s infinite' }} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Waveform ─────────────────────────────────────────────────────────────────
+function Waveform({ color = C.green, bars = 20 }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 2, height: 20 }}>
+      {Array.from({ length: bars }, (_, i) => (
+        <div key={i} style={{
+          width: 2, background: color,
+          borderRadius: 1, height: '100%',
+          transformOrigin: 'bottom',
+          animation: `waveform ${0.4 + (i % 5) * 0.12}s ease-in-out infinite`,
+          animationDelay: `${i * 0.04}s`,
+          opacity: 0.7 + (i % 3) * 0.1
+        }} />
+      ))}
+    </div>
+  );
+}
+
+// ── QR Code visual ───────────────────────────────────────────────────────────
+function QRCode() {
+  const pattern = [
+    [1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,1,0,0,1,1,0,0,0,0,0,1],
+    [1,0,1,1,1,0,1,0,1,0,1,0,1,1,1,0,1],
+    [1,0,1,1,1,0,1,0,0,1,0,0,1,1,1,0,1],
+    [1,0,1,1,1,0,1,0,1,1,0,0,1,1,1,0,1],
+    [1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1,1],
+    [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],
+    [1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1,0],
+    [0,1,0,1,0,1,0,0,0,1,0,1,0,1,0,0,1],
+    [1,1,0,1,1,0,1,1,0,0,1,1,0,1,1,0,1],
+    [0,0,0,0,0,0,0,0,1,0,0,0,1,0,1,0,0],
+    [1,1,1,1,1,1,1,0,0,1,0,0,1,1,0,1,0],
+    [1,0,0,0,0,0,1,0,1,0,1,0,0,0,0,0,1],
+    [1,0,1,1,1,0,1,0,0,0,1,1,1,1,1,0,0],
+    [1,0,0,0,0,0,1,0,1,1,0,1,0,1,0,1,0],
+    [1,1,1,1,1,1,1,0,0,0,0,0,1,0,1,0,0],
+  ];
+  return (
+    <div style={{ background: '#fff', padding: 10, borderRadius: 12, display: 'inline-block' }}>
+      {pattern.map((row, r) => (
+        <div key={r} style={{ display: 'flex' }}>
+          {row.map((cell, c) => (
+            <div key={c} style={{ width: 8, height: 8, background: cell ? '#000' : '#fff' }} />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── PEERS DATA ────────────────────────────────────────────────────────────────
+const INITIAL_PEERS = [
+  { id: 1, name: 'Anna B.', initials: 'AB', latency: 4, via: 'direct', state: 'speaking', gradient: 'linear-gradient(135deg,#1e40af,#2563eb)' },
+  { id: 2, name: 'Bernd R.', initials: 'BR', latency: 18, via: 'relay', state: 'online', gradient: 'linear-gradient(135deg,#059669,#0891b2)' },
+  { id: 3, name: 'Carla M.', initials: 'CM', latency: 6, via: 'direct', state: 'online', gradient: 'linear-gradient(135deg,#7c3aed,#2563eb)' },
+  { id: 4, name: 'Dirk V.', initials: 'DV', latency: 12, via: 'direct', state: 'idle', gradient: 'linear-gradient(135deg,#b45309,#ca8a04)' },
+];
+
+const CHANNELS = [
+  { id: 1, name: 'Workshop North', peers: 4, active: true },
+  { id: 2, name: 'Team Alpha', peers: 2, active: false },
+  { id: 3, name: 'All Hands', peers: 7, active: false },
+];
+
+// ── SCREEN: First Run ─────────────────────────────────────────────────────────
+function ScreenFirstRun({ onCreateChannel, onJoin }) {
+  return (
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '32px 20px 24px', animation: 'fadeInUp 0.3s ease' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+        <div style={{
+          width: 80, height: 80, borderRadius: 22,
+          background: 'linear-gradient(135deg,#059669 0%,#0891b2 50%,#2563eb 100%)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 16px 32px -8px rgba(8,145,178,0.45)',
+          marginBottom: 8, position: 'relative', overflow: 'hidden'
+        }}>
+          <div style={{ position: 'absolute', top: '-50%', right: '-50%', width: '100%', height: '200%', background: 'radial-gradient(circle,rgba(255,255,255,0.15),transparent 50%)', transform: 'rotate(35deg)' }} />
+          <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: 'relative' }}>
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="22"/>
+          </svg>
+        </div>
+        <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.025em', color: C.text }}>HeraTalk</div>
+        <Mono size={10} color={C.textTer} style={{ textTransform: 'uppercase', letterSpacing: '0.2em' }}>LAN Walkie-Talkie</Mono>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div onClick={onJoin} style={{
+          padding: '16px 16px', borderRadius: 16,
+          background: C.green, border: `1px solid ${C.green}`,
+          display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer'
+        }}>
+          <div style={{ width: 40, height: 40, borderRadius: 11, background: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+              <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+            </svg>
+          </div>
+          <div>
+            <div style={{ fontWeight: 600, fontSize: 14, color: '#fff' }}>Scan QR Code</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)' }}>Join an existing channel</div>
+          </div>
+        </div>
+        <div onClick={onCreateChannel} style={{
+          padding: '16px 16px', borderRadius: 16,
+          background: C.elevated, border: `1px solid ${C.border}`,
+          display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer'
+        }}>
+          <div style={{ width: 40, height: 40, borderRadius: 11, background: C.greenSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={C.green} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </div>
+          <div>
+            <div style={{ fontWeight: 600, fontSize: 14, color: C.text }}>Create Channel</div>
+            <div style={{ fontSize: 12, color: C.textSec }}>Generate QR code</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── SCREEN: Create Channel ────────────────────────────────────────────────────
+function ScreenCreateChannel({ onBack, onDone }) {
+  const [name, setName] = useState('Workshop North');
+  return (
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '8px 18px 20px', animation: 'fadeInUp 0.25s ease', overflow: 'auto' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0 18px' }}>
+        <span onClick={onBack} style={{ color: C.textSec, fontSize: 20, cursor: 'pointer' }}>←</span>
+        <span style={{ fontWeight: 600, fontSize: 15, color: C.text }}>New Channel</span>
+        <span style={{ width: 20 }} />
+      </div>
+      <div style={{ marginBottom: 20 }}>
+        <Mono size={10} color={C.textTer} style={{ textTransform: 'uppercase', letterSpacing: '0.18em', display: 'block', marginBottom: 8 }}>Channel Name</Mono>
+        <input
+          value={name}
+          onChange={e => setName(e.target.value)}
+          style={{
+            width: '100%', padding: '12px 14px', borderRadius: 12,
+            background: C.elevated, border: `1px solid ${C.borderMed}`,
+            color: C.text, fontFamily: 'Manrope', fontSize: 14, fontWeight: 600,
+            outline: 'none'
+          }}
+        />
+      </div>
+      <div style={{ marginBottom: 20 }}>
+        <Mono size={10} color={C.textTer} style={{ textTransform: 'uppercase', letterSpacing: '0.18em', display: 'block', marginBottom: 8 }}>Your Name</Mono>
+        <input
+          defaultValue="Max"
+          style={{
+            width: '100%', padding: '12px 14px', borderRadius: 12,
+            background: C.elevated, border: `1px solid ${C.border}`,
+            color: C.text, fontFamily: 'Manrope', fontSize: 14,
+            outline: 'none'
+          }}
+        />
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 6 }}>
+        {[
+          ['Audio Codec', 'Opus 32kbps'],
+          ['Encryption', 'SRTP / AES-128'],
+          ['Discovery', 'mDNS + UDP Broadcast'],
+        ].map(([k, v]) => (
+          <div key={k} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Mono size={10} color={C.textTer}>{k}</Mono>
+            <Mono size={10} color={C.textSec}>{v}</Mono>
+          </div>
+        ))}
+      </div>
+      <div onClick={() => name.trim() && onDone(name.trim())} style={{
+        marginTop: 'auto', padding: '14px', borderRadius: 12, background: C.green,
+        color: '#fff', fontWeight: 700, fontSize: 14, textAlign: 'center',
+        cursor: 'pointer', opacity: name.trim() ? 1 : 0.5
+      }}>Create & Show QR</div>
+    </div>
+  );
+}
+
+// ── SCREEN: QR Display ────────────────────────────────────────────────────────
+function ScreenQR({ channelName, onDone }) {
+  const [secs, setSecs] = useState(272);
+  useEffect(() => {
+    const t = setInterval(() => setSecs(s => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const m = String(Math.floor(secs / 60)).padStart(2, '0');
+  const s = String(secs % 60).padStart(2, '0');
+  return (
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '8px 18px 20px', animation: 'fadeInUp 0.25s ease' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0 16px' }}>
+        <span style={{ color: C.textSec, fontSize: 20 }}>←</span>
+        <span style={{ fontWeight: 600, fontSize: 15, color: C.text }}>Channel Created</span>
+        <span style={{ color: C.textSec, fontSize: 18 }}>⋮</span>
+      </div>
+      <p style={{ fontSize: 13, color: C.textSec, marginBottom: 16, lineHeight: 1.5 }}>
+        <strong style={{ color: C.text }}>"{channelName}"</strong> created. Let others scan to join.
+      </p>
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+        <QRCode />
+      </div>
+      <div style={{ padding: '12px 14px', background: C.elevated, borderRadius: 12, border: `1px solid ${C.yellowSoft}`, borderLeft: `3px solid ${C.yellow}`, display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: C.text, fontWeight: 500 }}>
+          <span style={{ color: C.yellow }}>⏱</span>
+          Expires in <Mono size={13} color={C.text} style={{ fontWeight: 700 }}>{m}:{s}</Mono>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 12, color: C.textSec, lineHeight: 1.4 }}>
+          <span style={{ color: C.yellow, flexShrink: 0 }}>⚠</span>
+          Show in person only — do not share as screenshot.
+        </div>
+      </div>
+      <div onClick={onDone} style={{ padding: '13px', borderRadius: 12, background: C.green, color: '#fff', fontWeight: 700, fontSize: 14, textAlign: 'center', cursor: 'pointer', marginTop: 'auto' }}>Done</div>
+    </div>
+  );
+}
+
+// ── SCREEN: Channel List ──────────────────────────────────────────────────────
+function ScreenChannelList({ channels, onSelect, onNew }) {
+  return (
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <div style={{ padding: '12px 16px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <div style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-0.02em', color: C.text }}>HeraTalk</div>
+          <Mono size={9} color={C.textTer} style={{ textTransform: 'uppercase', letterSpacing: '0.18em' }}>LAN · No Cloud</Mono>
+        </div>
+        <div onClick={onNew} style={{ width: 32, height: 32, borderRadius: 10, background: C.greenSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: C.green, fontSize: 18, fontWeight: 300 }}>+</div>
+      </div>
+      <div style={{ flex: 1, overflow: 'auto', padding: '4px 14px 8px' }}>
+        <Mono size={10} color={C.textTer} style={{ textTransform: 'uppercase', letterSpacing: '0.18em', display: 'block', padding: '8px 4px 6px' }}>My Channels</Mono>
+        {channels.map(ch => (
+          <div key={ch.id} onClick={() => onSelect(ch)} style={{
+            padding: '12px 14px', borderRadius: 12, background: C.elevated,
+            border: `1px solid ${ch.active ? C.green : C.border}`,
+            display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8,
+            cursor: 'pointer', transition: 'border-color 0.2s'
+          }}>
+            <div style={{
+              width: 40, height: 40, borderRadius: 12,
+              background: ch.active ? `linear-gradient(135deg,${C.green},#0891b2)` : C.higher,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+            }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={ch.active ? '#fff' : C.textTer} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/>
+              </svg>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 600, fontSize: 14, color: C.text }}>{ch.name}</div>
+              <Mono size={10} color={ch.active ? C.green : C.textTer}>{ch.active ? `● ${ch.peers} online` : `${ch.peers} peers`}</Mono>
+            </div>
+            <span style={{ color: C.textTer, fontSize: 14 }}>›</span>
+          </div>
+        ))}
+        <div onClick={onNew} style={{
+          padding: '12px 14px', borderRadius: 12, border: `1px dashed ${C.border}`,
+          display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer'
+        }}>
+          <div style={{ width: 40, height: 40, borderRadius: 12, background: C.higher, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: C.textTer, fontSize: 18 }}>+</div>
+          <div style={{ fontSize: 13, color: C.textTer }}>Create or join channel</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── SCREEN: Channel Main (PTT) ────────────────────────────────────────────────
+function ScreenChannel({ channel, peers, onSettings, onBack, onDirectCall, myName = 'Max' }) {
+  const [pttActive, setPttActive] = useState(false);
+  const [txTime, setTxTime] = useState(0);
+  const [peersState, setPeersState] = useState(peers);
+  const timerRef = useRef(null);
+  const [incomingCall, setIncomingCall] = useState(null);
+
+  useEffect(() => {
+    // simulate Anna randomly stopping after 3s
+    const t = setTimeout(() => {
+      setPeersState(ps => ps.map(p => p.id === 1 ? { ...p, state: 'online' } : p));
+    }, 3000);
+    return () => clearTimeout(t);
+  }, []);
+
+  // simulate incoming call after 8s
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (!pttActive) setIncomingCall({ name: 'Anna B.', initials: 'AB' });
+    }, 8000);
+    return () => clearTimeout(t);
+  }, []);
+
+  const startPTT = useCallback(() => {
+    setPttActive(true);
+    setTxTime(0);
+    timerRef.current = setInterval(() => setTxTime(t => t + 1), 1000);
+  }, []);
+
+  const stopPTT = useCallback(() => {
+    setPttActive(false);
+    clearInterval(timerRef.current);
+  }, []);
+
+  const fmt = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+  const speaking = peersState.find(p => p.state === 'speaking');
+  const active = peersState.filter(p => p.state === 'speaking');
+  const online = peersState.filter(p => p.state === 'online');
+  const idle = peersState.filter(p => p.state === 'idle');
+
+  const PeerCard = ({ peer }) => (
+    <div style={{
+      padding: '10px 12px', borderRadius: 12, background: C.elevated,
+      border: `1px solid ${peer.state === 'speaking' ? C.green : peer.via === 'relay' ? C.yellow : C.border}`,
+      borderLeft: `${peer.state === 'speaking' || peer.via === 'relay' ? '3px' : '1px'} solid ${peer.state === 'speaking' ? C.green : peer.via === 'relay' ? C.yellow : C.border}`,
+      background: peer.state === 'speaking' ? `linear-gradient(90deg,${C.greenSoft},transparent 60%)` : C.elevated,
+      display: 'flex', alignItems: 'center', gap: 10, marginBottom: 7
+    }}>
+      <Avatar
+        initials={peer.initials}
+        gradient={peer.gradient}
+        ring={peer.state === 'speaking' ? C.green : null}
+      />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontWeight: 600, fontSize: 13, color: C.text, display: 'flex', alignItems: 'center', gap: 6 }}>
+          {peer.name}
+          {peer.state === 'speaking' && <Waveform color={C.green} bars={12} />}
+        </div>
+        <Mono size={10} color={peer.state === 'speaking' ? C.green : peer.via === 'relay' ? C.yellow : C.textTer}>
+          {peer.state === 'speaking' ? `speaking · ${peer.latency}ms` : peer.via === 'relay' ? `via relay · ${peer.latency}ms` : `${peer.via} · ${peer.latency}ms`}
+        </Mono>
+      </div>
+      <div
+        onClick={() => onDirectCall(peer)}
+        style={{ width: 32, height: 32, borderRadius: 8, background: C.blueSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
+        title="Direct call"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.blue} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 5.85 5.85l.85-.85a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>
+        </svg>
+      </div>
+    </div>
+  );
+
+  const GroupHead = ({ label, count }) => (
+    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 4px 6px', marginBottom: 0 }}>
+      <Mono size={10} color={label === 'Active' ? C.green : C.textTer} style={{ textTransform: 'uppercase', letterSpacing: '0.18em' }}>{label}</Mono>
+      <Mono size={9} color={C.textTer}>{count}</Mono>
+    </div>
+  );
+
+  return (
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+      <AppHeader
+        title={channel.name}
+        sub={pttActive ? `Transmitting · ${peersState.length} receivers` : `Channel · ${peersState.length} peers`}
+        onSettings={onSettings}
+        onBack={onBack}
+      />
+      {/* Incoming call heads-up */}
+      {incomingCall && !pttActive && (
+        <div style={{
+          margin: '10px 12px 0',
+          padding: '10px 12px',
+          background: C.higher, border: `1px solid ${C.blue}`,
+          borderLeft: `3px solid ${C.blue}`, borderRadius: 12,
+          display: 'flex', flexDirection: 'column', gap: 10,
+          boxShadow: `0 4px 20px -4px ${C.blueGlow}`,
+          animation: 'slideDown 0.25s ease', flexShrink: 0
+        }}>
+          {/* Info row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Avatar initials="AB" gradient="linear-gradient(135deg,#1e40af,#2563eb)" size={32} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 600, fontSize: 13, color: C.text, whiteSpace: 'nowrap' }}>Anna B. calling</div>
+              <Mono size={10} color={C.textSec}>direct call · now</Mono>
+            </div>
+          </div>
+          {/* Button row */}
+          <div style={{ display: 'flex', gap: 6 }}>
+            <div onClick={() => setIncomingCall(null)} style={{ flex: 1, padding: '7px 0', borderRadius: 7, background: C.screen, border: `1px solid ${C.border}`, cursor: 'pointer', textAlign: 'center' }}>
+              <Mono size={10} color={C.textSec}>Later</Mono>
+            </div>
+            <div onClick={() => { setIncomingCall(null); onDirectCall({ name: 'Anna B.', initials: 'AB', gradient: 'linear-gradient(135deg,#1e40af,#2563eb)', id: 1, latency: 4 }); }} style={{ flex: 1, padding: '7px 0', borderRadius: 7, background: C.greenSoft, border: `1px solid rgba(22,163,74,0.3)`, cursor: 'pointer', textAlign: 'center' }}>
+              <Mono size={10} color={C.green} style={{ fontWeight: 600 }}>Answer</Mono>
+            </div>
+            <div onClick={() => setIncomingCall(null)} style={{ flex: 1, padding: '7px 0', borderRadius: 7, background: C.redSoft, border: `1px solid rgba(220,38,38,0.3)`, cursor: 'pointer', textAlign: 'center' }}>
+              <Mono size={10} color={C.red} style={{ fontWeight: 600 }}>Reject</Mono>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Body */}
+      <div style={{ flex: 1, overflow: 'auto', padding: '12px 14px' }}>
+        {pttActive ? (
+          /* TX Focus view */
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 24, animation: 'fadeInUp 0.2s ease' }}>
+            <Mono size={10} color={C.green} style={{ textTransform: 'uppercase', letterSpacing: '0.25em', fontWeight: 600, marginBottom: 12 }}>You are speaking</Mono>
+            <div style={{ fontFamily: MONO, fontSize: 52, fontWeight: 500, color: C.text, lineHeight: 1, letterSpacing: '0.02em', marginBottom: 20 }}>{fmt(txTime)}</div>
+            <Waveform color={C.green} bars={28} />
+            <Mono size={10} color={C.textTer} style={{ marginTop: 10, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{peersState.map(p => p.name.split(' ')[0]).join(' · ')} listening</Mono>
+          </div>
+        ) : (
+          /* Peer list */
+          <div>
+            {active.length > 0 && (
+              <div style={{ marginBottom: 14 }}>
+                <GroupHead label="Active" count={active.length} />
+                {active.map(p => <PeerCard key={p.id} peer={p} />)}
+              </div>
+            )}
+            {online.length > 0 && (
+              <div style={{ marginBottom: 14 }}>
+                <GroupHead label="Online" count={online.length} />
+                {online.map(p => <PeerCard key={p.id} peer={p} />)}
+              </div>
+            )}
+            {idle.length > 0 && (
+              <div style={{ marginBottom: 14 }}>
+                <GroupHead label="Away" count={idle.length} />
+                {idle.map(p => <PeerCard key={p.id} peer={p} />)}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* PTT */}
+      <PTTButton
+        mode={pttActive ? 'active' : 'idle'}
+        color="green"
+        onPress={startPTT}
+        onRelease={stopPTT}
+        timer={pttActive ? fmt(txTime) : null}
+      />
+    </div>
+  );
+}
+
+// ── SCREEN: Direct Call ───────────────────────────────────────────────────────
+function ScreenDirectCall({ peer, onHangup }) {
+  const [pttActive, setPttActive] = useState(false);
+  const [callTime, setCallTime] = useState(0);
+  const [txTime, setTxTime] = useState(0);
+  const timerRef = useRef(null);
+  const txRef = useRef(null);
+  const fmt = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+
+  useEffect(() => {
+    const t = setInterval(() => setCallTime(c => c + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const startPTT = () => {
+    setPttActive(true);
+    setTxTime(0);
+    txRef.current = setInterval(() => setTxTime(t => t + 1), 1000);
+  };
+  const stopPTT = () => {
+    setPttActive(false);
+    clearInterval(txRef.current);
+  };
+
+  return (
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+      <AppHeader title="Direct Call" sub={`with ${peer.name}`} onBack={onHangup} />
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 20px 16px', textAlign: 'center', overflow: 'auto' }}>
+        <Mono size={10} color={C.blue} style={{ textTransform: 'uppercase', letterSpacing: '0.2em', fontWeight: 600, marginBottom: 18 }}>Private Channel</Mono>
+        <Avatar initials={peer.initials} size={88} gradient={peer.gradient || 'linear-gradient(135deg,#1e40af,#2563eb)'} ring={C.blue} />
+        <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em', color: C.text, marginTop: 14 }}>{peer.name}</div>
+        <Mono size={10} color={C.textTer} style={{ marginTop: 4, textTransform: 'uppercase', letterSpacing: '0.15em' }}>peer-to-peer · SRTP</Mono>
+        <Mono size={20} color={C.blue} style={{ marginTop: 18, fontWeight: 500, letterSpacing: '0.08em' }}>{fmt(callTime)}</Mono>
+        {pttActive && (
+          <div style={{ marginTop: 18, animation: 'fadeInUp 0.2s ease' }}>
+            <Waveform color={C.blue} bars={24} />
+            <Mono size={10} color={C.blue} style={{ marginTop: 6, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Speaking · {fmt(txTime)}</Mono>
+          </div>
+        )}
+        <div style={{ marginTop: 20 }}>
+          <div onClick={onHangup} style={{
+            padding: '8px 20px', borderRadius: 100, background: C.redSoft,
+            border: `1px solid rgba(220,38,38,0.3)`, color: C.red,
+            fontWeight: 700, fontSize: 12, letterSpacing: '0.06em', cursor: 'pointer',
+            fontFamily: MONO, display: 'inline-block'
+          }}>■ HANG UP</div>
+        </div>
+      </div>
+      <PTTButton
+        mode={pttActive ? 'active' : 'idle'}
+        color="blue"
+        onPress={startPTT}
+        onRelease={stopPTT}
+        timer={pttActive ? fmt(txTime) : null}
+        label={'Hold to\nSpeak'}
+      />
+    </div>
+  );
+}
+
+// ── SCREEN: Settings ──────────────────────────────────────────────────────────
+function ScreenSettings({ onBack }) {
+  const [vox, setVox] = useState(false);
+  const [hwPtt, setHwPtt] = useState(false);
+  const [autoJoin, setAutoJoin] = useState(false);
+  const [codec, setCodec] = useState('Opus 32kbps');
+  return (
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <AppHeader title="Settings" sub="HeraTalk 0.3.0" onBack={onBack} />
+      <div style={{ flex: 1, overflow: 'auto', padding: '10px 14px 24px' }}>
+        {[
+          { title: 'Audio', items: [
+            { label: 'Codec', value: codec, action: () => setCodec(codec === 'Opus 32kbps' ? 'Opus 16kbps' : 'Opus 32kbps') },
+            { label: 'Output', value: 'Speaker', action: null },
+            { label: 'Talk Mode', value: 'PTT', action: null },
+          ]},
+          { title: 'Network', items: [
+            { label: 'Discovery', value: 'mDNS + Broadcast', action: null },
+            { label: 'Encryption', value: 'SRTP / AES-128', action: null },
+          ]},
+          { title: 'Notifications', items: [
+            { label: 'Incoming direct call', value: 'Ringtone', action: null },
+            { label: 'Call while transmitting', value: 'Vibrate', action: null },
+          ]},
+        ].map(group => (
+          <div key={group.title} style={{ marginBottom: 20 }}>
+            <Mono size={10} color={C.textTer} style={{ textTransform: 'uppercase', letterSpacing: '0.18em', display: 'block', padding: '0 4px 8px' }}>{group.title}</Mono>
+            <div style={{ borderRadius: 12, overflow: 'hidden', border: `1px solid ${C.border}` }}>
+              {group.items.map((item, i) => (
+                <div key={item.label} onClick={item.action} style={{
+                  padding: '12px 14px', background: C.elevated,
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12,
+                  borderTop: i > 0 ? `1px solid ${C.border}` : 'none',
+                  cursor: item.action ? 'pointer' : 'default'
+                }}>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: C.text }}>{item.label}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Mono size={12} color={C.textSec}>{item.value}</Mono>
+                    <span style={{ color: C.textTer, fontSize: 13 }}>›</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+        <div style={{ marginBottom: 20 }}>
+          <Mono size={10} color={C.textTer} style={{ textTransform: 'uppercase', letterSpacing: '0.18em', display: 'block', padding: '0 4px 8px' }}>Features</Mono>
+          <div style={{ borderRadius: 12, overflow: 'hidden', border: `1px solid ${C.border}` }}>
+            {[
+              { label: 'VOX Mode', sub: 'Mic always active', val: vox, set: setVox },
+              { label: 'Hardware PTT', sub: 'Bluetooth / headset button', val: hwPtt, set: setHwPtt },
+              { label: 'Auto-join last channel', sub: 'Skip channel list on start', val: autoJoin, set: setAutoJoin },
+            ].map((item, i) => (
+              <div key={item.label} style={{
+                padding: '12px 14px', background: C.elevated,
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12,
+                borderTop: i > 0 ? `1px solid ${C.border}` : 'none'
+              }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: C.text }}>{item.label}</div>
+                  <div style={{ fontSize: 11, color: C.textTer, marginTop: 2 }}>{item.sub}</div>
+                </div>
+                <Toggle on={item.val} onToggle={() => item.set(v => !v)} />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{ padding: '12px 14px', background: C.greenSoft, border: `1px solid rgba(22,163,74,0.2)`, borderRadius: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: C.green, boxShadow: `0 0 8px ${C.greenGlow}` }} />
+          <span style={{ fontSize: 12, fontWeight: 500, color: C.text, flex: 1 }}>LAN connection healthy</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Phone Shell ───────────────────────────────────────────────────────────────
+function PhoneShell({ children, time }) {
+  return (
+    <div style={{
+      width: 340, height: 700,
+      background: '#1a1a1d', borderRadius: 44, padding: 10,
+      position: 'relative',
+      boxShadow: '0 30px 80px -20px rgba(0,0,0,0.85), 0 10px 40px -10px rgba(22,163,74,0.08)',
+      border: '1px solid rgba(255,255,255,0.04)'
+    }}>
+      {/* Dynamic island */}
+      <div style={{ position: 'absolute', top: 14, left: '50%', transform: 'translateX(-50%)', width: 110, height: 24, background: '#000', borderRadius: 100, zIndex: 10 }} />
+      <div style={{
+        width: '100%', height: '100%', background: '#0f0f12',
+        borderRadius: 36, overflow: 'hidden', display: 'flex', flexDirection: 'column'
+      }}>
+        <StatusBar time={time} />
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ── Root App ──────────────────────────────────────────────────────────────────
+function App() {
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "userName": "Max",
+    "channelName": "Workshop North",
+    "accentColor": "#16a34a",
+    "showAnnotations": false
+  }/*EDITMODE-END*/;
+
+  const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+  const [screen, setScreen] = useState('channels'); // firstrun | create | qr | channels | channel | direct | settings
+  const [activeChannel, setActiveChannel] = useState(null);
+  const [directPeer, setDirectPeer] = useState(null);
+  const [channelName, setChannelName] = useState(tweaks.channelName);
+  const [clockSecs, setClockSecs] = useState(0);
+
+  useEffect(() => {
+    const t = setInterval(() => setClockSecs(s => s + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const baseTime = new Date(2026, 3, 28, 9, 41);
+  const now = new Date(baseTime.getTime() + clockSecs * 1000);
+  const timeStr = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+  const handleSelectChannel = (ch) => { setActiveChannel(ch); setScreen('channel'); };
+  const handleDirectCall = (peer) => { setDirectPeer(peer); setScreen('direct'); };
+
+  const renderScreen = () => {
+    switch (screen) {
+      case 'firstrun': return <ScreenFirstRun onCreateChannel={() => setScreen('create')} onJoin={() => setScreen('channels')} />;
+      case 'create': return <ScreenCreateChannel onBack={() => setScreen('firstrun')} onDone={n => { setChannelName(n); setScreen('qr'); }} />;
+      case 'qr': return <ScreenQR channelName={channelName} onDone={() => setScreen('channels')} />;
+      case 'channels': return <ScreenChannelList channels={CHANNELS} onSelect={handleSelectChannel} onNew={() => setScreen('create')} />;
+      case 'channel': return <ScreenChannel channel={activeChannel || CHANNELS[0]} peers={INITIAL_PEERS} onSettings={() => setScreen('settings')} onBack={() => setScreen('channels')} onDirectCall={handleDirectCall} myName={tweaks.userName} />;
+      case 'direct': return <ScreenDirectCall peer={directPeer} onHangup={() => setScreen('channel')} />;
+      case 'settings': return <ScreenSettings onBack={() => setScreen('channel')} />;
+      default: return null;
+    }
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: 16, padding: 24 }}>
+      {/* Screen indicator */}
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
+        {[
+          ['firstrun', '01 First Run'],
+          ['create', '02 Create'],
+          ['qr', '03 QR Code'],
+          ['channels', '04 Channels'],
+          ['channel', '05 PTT'],
+          ['direct', '06 Direct'],
+          ['settings', '07 Settings'],
+        ].map(([s, label]) => (
+          <div key={s} onClick={() => setScreen(s)} style={{
+            padding: '4px 10px', borderRadius: 100,
+            background: screen === s ? C.green : C.elevated,
+            border: `1px solid ${screen === s ? C.green : C.border}`,
+            cursor: 'pointer', transition: 'all 0.15s'
+          }}>
+            <Mono size={9} color={screen === s ? '#fff' : C.textTer} style={{ textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: screen === s ? 600 : 400 }}>{label}</Mono>
+          </div>
+        ))}
+      </div>
+
+      <PhoneShell time={timeStr}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          {renderScreen()}
+        </div>
+        <NavBar
+          onHome={() => setScreen('channels')}
+          onBack={() => {
+            if (screen === 'channel') setScreen('channels');
+            else if (screen === 'direct') setScreen('channel');
+            else if (screen === 'settings') setScreen('channel');
+            else if (screen === 'create' || screen === 'qr') setScreen('firstrun');
+            else setScreen('channels');
+          }}
+          onMenu={() => {}}
+        />
+      </PhoneShell>
+
+      <Mono size={10} color={C.textTer} style={{ textTransform: 'uppercase', letterSpacing: '0.15em' }}>HeraTalk · LAN · No Cloud · April 2026</Mono>
+
+      <TweaksPanel>
+        <TweakSection label="Identity">
+          <TweakText id="userName" label="Your name" />
+          <TweakText id="channelName" label="Default channel" />
+        </TweakSection>
+        <TweakSection label="Visual">
+          <TweakColor id="accentColor" label="Accent (green)" />
+          <TweakToggle id="showAnnotations" label="Show screen notes" />
+        </TweakSection>
+      </TweaksPanel>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+<div id="root"></div>
+
+<template id="__bundler_thumbnail" data-bg-color="#0a0a0b">
+  <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+    <rect width="400" height="300" fill="#0a0a0b"/>
+    <rect x="150" y="40" width="100" height="220" rx="16" fill="#1a1a1d"/>
+    <rect x="158" y="52" width="84" height="196" rx="10" fill="#0f0f12"/>
+    <circle cx="200" cy="200" r="28" fill="none" stroke="#16a34a" stroke-width="3"/>
+    <text x="200" y="205" text-anchor="middle" font-size="18" fill="#16a34a">🎙</text>
+    <text x="200" y="30" text-anchor="middle" font-size="14" fill="#16a34a" font-family="monospace">HeraTalk</text>
+  </svg>
+</template>
+</body>
+</html>
