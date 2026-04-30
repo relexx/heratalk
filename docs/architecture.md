@@ -126,6 +126,27 @@ flowchart TB
 
 Abhängigkeitsregel: Abhängigkeiten fließen nur nach innen — `feature` → `service` → `core`. Niemals umgekehrt. Insbesondere greifen `:feature:pairing`, `:feature:settings` und `:service:discovery` ausschließlich über `:core:identity` auf den Display-Namen zu — keines dieser Module liest oder schreibt den DataStore-Key direkt.
 
+### 4.1 Adapter-Schichten in `:core:*`-Modulen
+
+`.claude/rules.md` Rule 17 verbietet Android-SDK-Imports in `:core:*`-Modulen. Zwei Module benötigen jedoch eine Plattform-Bindung, weil sie eine Default-Implementierung für ihre Domain-API mitliefern: `:core:logging` (logcat-Adapter) und `:core:identity` (DataStore-Persistenz für den Display-Namen, Android-Keystore für gepinnte Static-Keys). Beide Module sind als `com.android.library` konfiguriert.
+
+Diese Ausnahme ist in **ADR-0004** (`docs/adrs/0004-core-android-adapters.md`) formal geregelt. Kurzfassung der Akzeptanz­kriterien:
+
+- Reines Domain-Interface in eigener Datei ohne Android-Imports (z. B. `Logger.kt`, `IdentityRepository.kt`).
+- Adapter-Klassen sind explizit mit Suffix `Adapter` oder `Impl` benannt (z. B. `AndroidLogcatLogger`, `DataStoreIdentityRepository`) — nur diese Dateien dürfen `android.*`/`androidx.*` importieren.
+- Adapter sind, soweit möglich, `internal`; nur das Interface und die DI-Factory sind `public`.
+- Domain-Tests laufen als reine JUnit-5-Tests ohne Robolectric gegen das Interface.
+- Android-Symbole erscheinen nicht in der Interface-Signatur (kein `Context`, kein `Bundle`, kein `View`).
+
+**Whitelist der `:core:*`-Module mit Adapter-Schicht** (Stand v0.1.0):
+
+| Modul | Adapter-Klasse | Plattform-Abhängigkeit |
+| --- | --- | --- |
+| `:core:logging` | `AndroidLogcatLogger` | `android.util.Log` |
+| `:core:identity` | `DataStoreIdentityRepository`, später Keystore-Adapter | `androidx.datastore.preferences`, `android.security.keystore` |
+
+Alle anderen `:core:*`-Module (`:core:crypto`, `:core:model`, `:core:ui`) sind strikt JVM-only. Erweiterungen der Whitelist sind Architektur-Änderungen und brauchen ein neues ADR oder ein Update von ADR-0004.
+
 ## 5. Kommunikationsmodelle
 
 ### 5.1 Broadcast
