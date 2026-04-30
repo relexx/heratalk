@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- Enforce that all user-visible strings are in strings.xml, never hardcoded. -->
+    <issue id="HardcodedText" severity="error" />
+
+    <!-- Enforce that all string keys have translations for all declared locales. -->
+    <issue id="MissingTranslation" severity="error" />
+</lint>

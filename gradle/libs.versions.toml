@@ -35,6 +35,9 @@ zxing = "3.5.3"
 # Audio / NDK
 # libopus wird als eigenes Git-Submodule eingebunden und per CMake gebaut.
 
+# Coroutines
+coroutines = "1.10.2"
+
 # Networking
 okhttp = "5.0.0"
 
@@ -79,6 +82,10 @@ zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
 
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit5" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
@@ -88,7 +95,8 @@ kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest"
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
-# Note: AGP 9.0+ provides built-in Kotlin support — no "kotlin-android" plugin needed.
+# Note: AGP 9.0+ provides built-in Kotlin support for Android modules — no "kotlin-android" plugin needed.
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobufPlugin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }

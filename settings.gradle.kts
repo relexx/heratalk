@@ -18,15 +18,26 @@ dependencyResolutionManagement {
 rootProject.name = "HeraTalk"
 
 include(":app")
+
 // Core modules
-// include(":core:crypto")
-// include(":core:model")
-// include(":core:network")
+include(":core:model")
+include(":core:logging")
+include(":core:crypto")
+include(":core:identity")
+include(":core:ui")
+
 // Service modules
-// include(":service:audio")
-// include(":service:media")
-// include(":service:signaling")
+include(":service:lifecycle")
+include(":service:discovery")
+include(":service:transport")
+include(":service:signaling")
+include(":service:media")
+include(":service:audio")
+include(":service:ptt")
+include(":service:relay")
+
 // Feature modules
-// include(":feature:channel")
-// include(":feature:pairing")
-// include(":feature:settings")
+include(":feature:pairing")
+include(":feature:channel")
+include(":feature:direct")
+include(":feature:settings")

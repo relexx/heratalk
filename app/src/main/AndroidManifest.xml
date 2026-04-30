@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+        Note: android:theme will be set to HeraTalk Material-3 theme in Phase E1.
+        android:allowBackup="false" is required per security rules (rule 13).
+    -->
+    <application
+        android:label="@string/app_name"
+        android:allowBackup="false"
+        android:supportsRtl="true">
+    </application>
+
+</manifest>
