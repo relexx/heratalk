@@ -267,7 +267,7 @@ Severity-Skala: **Critical** (sofortige Action), **High** (vor v1.0.0 fixen), **
 2. Alternative: gut-verifizierter Maven-AAR mit gepinnter Version und Hash.
 3. ADR-0003 (Audio-Codec) hält die Wahl AAR vs. Selbstbau explizit fest.
 
-**Status:** ✓ Adressiert — Architect-Entscheidung in ADR-0003 (Audio-Codec) dokumentiert; finale AAR-vs.-Selbstbau-Wahl steht vor v0.3.0.
+**Status:** ⚠ Open — ADR-0003 (Audio-Codec) dokumentiert nur den Entscheidungsrahmen (AAR-Präferenz mit Selbstbau-Fallback). Offen bis vor v0.3.0 ist die konkrete Risiko-Reduktion durch finale Wahl und Dokumentation entweder eines Self-Build-Pfads aus offizieller Xiph-Quelle oder eines konkret benannten AARs inkl. Version, SHA-256-Hash und Bezugsquelle/Provenance.
 
 ### F-SUPPLY-04 · Release-Signatur-Verifikation für Endnutzer schwierig · Low
 
