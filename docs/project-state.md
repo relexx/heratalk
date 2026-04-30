@@ -2,13 +2,15 @@
 
 > **Lebendes Dokument**, gepflegt vom Orchestrator-Agent und ergänzt vom Dokumentierer. Enthält den aktuellen Stand, alle getroffenen Entscheidungen und offene Risiken. Bei jedem PR, der Architektur oder Release-Status berührt, wird dieses Dokument mit aktualisiert.
 
-Stand: Release v0.1.0 (Grundgerüst) gestartet — Vorarbeit Architektur-Entscheidungen abgeschlossen, Implementierungsphase steht bevor.
+Stand: Release v0.1.0 (Grundgerüst) — Branch `release/v0.1.0` ist angelegt, Implementierungsplan liegt unter `docs/impl-plan-v0.1.0.md` vor. Entwickler-Phase startet als Nächstes.
 
 ## Aktueller Release
 
-**In Arbeit:** v0.1.0 — Grundgerüst (Kick-off mit ADR-Sanierung 2026-04-30)
+**In Arbeit:** v0.1.0 — Grundgerüst (Kick-off mit ADR-Sanierung 2026-04-30, Branch und Plan 2026-04-30)
 **Nächster geplanter Release:** v0.2.0 — PoC Paketversand
 **Letzter abgeschlossener Release:** (noch keiner)
+**Aktiver Branch:** `release/v0.1.0`
+**Nächster Schritt:** Entwickler-Agent beginnt mit Phase A1 des Implementierungsplans (`settings.gradle.kts` aktualisieren, Convention-Plugin-Entscheidung, dann Module von innen nach außen).
 
 ## Fortschritt pro Komponente
 
