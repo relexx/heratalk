@@ -13,7 +13,7 @@
 
 | Release | Titel | Status |
 |---------|-------|--------|
-| v0.1.0 | Grundgerüst | 📋 geplant |
+| v0.1.0 | Grundgerüst | 🏗 in Arbeit |
 | v0.2.0 | PoC Paketversand | 📋 geplant |
 | v0.3.0 | Audio-Loopback | 📋 geplant |
 | v0.4.0 | Broadcast Audio (unverschlüsselt) | 📋 geplant |
@@ -30,6 +30,8 @@ Legende: 📋 geplant · 🏗 in Arbeit · ✅ abgeschlossen · ⏸ pausiert
 ---
 
 ## v0.1.0 — Grundgerüst
+
+**Status:** 🏗 in Arbeit (Kick-off 2026-04-30 mit ADR-Sanierung 0001–0003).
 
 **Ziel:** Kompilierbares App-Projekt mit allen Berechtigungen, UI-Gerüst und vollständiger Projektinfrastruktur. Noch kein Netzwerk, noch kein Audio.
 
