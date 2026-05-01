@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (c) 2026 relexx. BSD 3-Clause License.
+
+    Strings for the :feature:settings module.
+
+    Section ordering follows the 2026-04-25 UX revision:
+      Audio → App-Verhalten → Netzwerk → Benachrichtigungen
+        → Features+Berechtigungen → Kanal → Info.
+
+    Naming convention (impl-plan-v0.1.0.md §B1):
+      - settings_* : everything that lives on the settings screen.
+-->
+<resources>
+    <!-- Top-bar title. -->
+    <string name="settings_screen_title">Settings</string>
+
+    <!-- Section headers. -->
+    <string name="settings_section_audio">Audio</string>
+    <string name="settings_section_app">App behaviour</string>
+    <string name="settings_section_network">Network</string>
+    <string name="settings_section_notifications">Notifications</string>
+    <string name="settings_section_features">Features and permissions</string>
+    <string name="settings_section_channel">Channel</string>
+    <string name="settings_section_info">About</string>
+
+    <!-- Stub section bodies. -->
+    <string name="settings_audio_stub">Audio settings arrive in v0.7.0.</string>
+    <string name="settings_network_stub">Network diagnostics arrive in v0.9.0.</string>
+    <string name="settings_notifications_stub">Notification preferences arrive in v0.8.0.</string>
+    <string name="settings_features_stub">Feature toggles for VOX, hardware PTT and sidetone arrive in v0.7.0.</string>
+
+    <!-- App-behaviour controls. -->
+    <string name="settings_language_label">Language</string>
+    <string name="settings_language_system">Use system language</string>
+    <string name="settings_language_de">Deutsch</string>
+    <string name="settings_language_en">English</string>
+    <string name="settings_theme_label">Theme</string>
+    <string name="settings_theme_value_dark">Dark (default)</string>
+    <string name="settings_theme_value_light">Light</string>
+    <string name="settings_theme_value_system">Match system</string>
+    <string name="settings_theme_note">Theme switching becomes effective in v1.0.</string>
+    <string name="settings_update_check_label">Check for updates on start</string>
+    <string name="settings_update_check_summary">Connects briefly to GitHub when the app starts so you learn about security updates.</string>
+    <string name="settings_auto_resume_label">Resume last channel on start</string>
+    <string name="settings_auto_resume_summary">Skips the channel-choice screen and rejoins the channel you used last.</string>
+
+    <!-- Channel section: display-name editing. -->
+    <string name="settings_display_name_label">Your name</string>
+    <string name="settings_display_name_unset">Not set yet</string>
+    <string name="settings_display_name_edit">Edit</string>
+
+    <!-- About section. -->
+    <string name="settings_app_name">HeraTalk</string>
+    <string name="settings_app_version_label">Version</string>
+</resources>

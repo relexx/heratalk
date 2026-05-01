@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (c) 2026 relexx. BSD 3-Clause License.
+
+    Deutsche Übersetzungen für das Modul :feature:settings.
+    Pflege durch den Documenter-Agent. Glossar siehe .claude/agents/documenter.md.
+-->
+<resources>
+    <string name="settings_screen_title">Einstellungen</string>
+
+    <string name="settings_section_audio">Audio</string>
+    <string name="settings_section_app">App-Verhalten</string>
+    <string name="settings_section_network">Netzwerk</string>
+    <string name="settings_section_notifications">Benachrichtigungen</string>
+    <string name="settings_section_features">Features und Berechtigungen</string>
+    <string name="settings_section_channel">Kanal</string>
+    <string name="settings_section_info">Info</string>
+
+    <string name="settings_audio_stub">Audio-Einstellungen kommen mit v0.7.0.</string>
+    <string name="settings_network_stub">Netzwerk-Diagnose kommt mit v0.9.0.</string>
+    <string name="settings_notifications_stub">Benachrichtigungs-Einstellungen kommen mit v0.8.0.</string>
+    <string name="settings_features_stub">Feature-Schalter für VOX, Hardware-PTT und Sidetone kommen mit v0.7.0.</string>
+
+    <string name="settings_language_label">Sprache</string>
+    <string name="settings_language_system">Systemsprache verwenden</string>
+    <string name="settings_language_de">Deutsch</string>
+    <string name="settings_language_en">English</string>
+    <string name="settings_theme_label">Erscheinungsbild</string>
+    <string name="settings_theme_value_dark">Dunkel (Standard)</string>
+    <string name="settings_theme_value_light">Hell</string>
+    <string name="settings_theme_value_system">System folgen</string>
+    <string name="settings_theme_note">Das Umschalten wird mit v1.0 wirksam.</string>
+    <string name="settings_update_check_label">Beim Start nach Updates suchen</string>
+    <string name="settings_update_check_summary">Verbindet sich beim App-Start kurz mit GitHub, damit du von Sicherheitsupdates erfährst.</string>
+    <string name="settings_auto_resume_label">Letzten Kanal beim Start fortsetzen</string>
+    <string name="settings_auto_resume_summary">Überspringt den Kanal-Auswahl-Screen und tritt direkt dem zuletzt verwendeten Kanal bei.</string>
+
+    <string name="settings_display_name_label">Dein Name</string>
+    <string name="settings_display_name_unset">Noch nicht festgelegt</string>
+    <string name="settings_display_name_edit">Bearbeiten</string>
+
+    <string name="settings_app_name">HeraTalk</string>
+    <string name="settings_app_version_label">Version</string>
+</resources>
