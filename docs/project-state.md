@@ -2,15 +2,15 @@
 
 > **Lebendes Dokument**, gepflegt vom Orchestrator-Agent und ergänzt vom Dokumentierer. Enthält den aktuellen Stand, alle getroffenen Entscheidungen und offene Risiken. Bei jedem PR, der Architektur oder Release-Status berührt, wird dieses Dokument mit aktualisiert.
 
-Stand: Release v0.1.0 (Grundgerüst) — Branch `release/v0.1.0`, Phasen A1 (Build-System) und A2 (`:core:model`) abgeschlossen, ADR-0004 (Adapter-Schichten in `:core:*`) gemerged. Phase A3 (`:core:logging`) ist die nächste Aktion.
+Stand: Release v0.1.0 (Grundgerüst) — Branch `release/v0.1.0`, Phase A (A1–A5) vollständig abgeschlossen (2026-05-01). Nächster Schritt: Phase B (`:core:ui`, Lint-Enforcement-Smoketest).
 
 ## Aktueller Release
 
-**In Arbeit:** v0.1.0 — Grundgerüst (Kick-off 2026-04-30, A1+A2 abgeschlossen 2026-04-30, A3 gestartet 2026-04-30)
+**In Arbeit:** v0.1.0 — Grundgerüst (Kick-off 2026-04-30, Phase A vollständig abgeschlossen 2026-05-01)
 **Nächster geplanter Release:** v0.2.0 — PoC Paketversand
 **Letzter abgeschlossener Release:** (noch keiner)
 **Aktiver Branch:** `release/v0.1.0`
-**Nächster Schritt:** Entwickler-Agent implementiert Phase A3 — `:core:logging` (Logger-Interface, AndroidLogcatLogger, RingBufferLogger mit MutableSharedFlow, CompositeLogger). Danach Phase A4 (`:core:crypto` Skeleton).
+**Nächster Schritt:** Phase B — Entwickler-Agent implementiert B1 (`:core:ui`: Material-3-Theme, gemeinsame Composables, Strings) und B2 (Lint-Enforcement-Smoketest).
 
 ## Fortschritt v0.1.0 — Phasen-Tracking
 
@@ -18,9 +18,9 @@ Stand: Release v0.1.0 (Grundgerüst) — Branch `release/v0.1.0`, Phasen A1 (Bui
 |-------|--------|--------|
 | A1 | Build-System-Grundgerüst (`settings.gradle.kts`, Convention-Plugins, `lint.xml`, `detekt.yml`, Spotless) | ✅ abgeschlossen, vom Architekten freigegeben |
 | A2 | `:core:model` (Domain-Datenklassen, `DisplayName`-Validierung, JUnit-5-Tests) | ✅ abgeschlossen, alle Tests grün, Copilot-Feedback eingearbeitet |
-| A3 | `:core:logging` (Logger-Interface, AndroidLogcatLogger, RingBufferLogger, CompositeLogger) | 🏗 in Arbeit |
-| A4 | `:core:crypto` (Skeleton, Type-Stubs mit `TODO("v0.5.0/v0.6.0")`) | 📋 geplant |
-| A5 | `:core:identity` (DataStore, `IdentityRepository`, Validierung) | 📋 geplant |
+| A3 | `:core:logging` (Logger-Interface, AndroidLogcatLogger, RingBufferLogger, CompositeLogger) | ✅ abgeschlossen |
+| A4 | `:core:crypto` (Skeleton, Type-Stubs mit `TODO("v0.5.0/v0.6.0")`) | ✅ abgeschlossen |
+| A5 | `:core:identity` (DataStore, `IdentityRepository`, Validierung) | ✅ abgeschlossen |
 | B1 | `:core:ui` (Material-3-Theme, gemeinsame Composables, Strings) | 📋 geplant |
 | B2 | Lint-Enforcement-Smoketest | 📋 geplant |
 | C1–C6 | Service- und Feature-Skelette | 📋 geplant |
@@ -40,10 +40,10 @@ Stand: Release v0.1.0 (Grundgerüst) — Branch `release/v0.1.0`, Phasen A1 (Bui
 | Claude-Code-Agenten | ✅ definiert | Einsatzbereit ab Projektstart |
 | `:app`-Modul | 📋 geplant | v0.1.0 |
 | `:core:model` | ✅ implementiert (v0.1.0/A2) | Stabil; Domain-Datenklassen werden bei Bedarf in Folge-Releases erweitert |
-| `:core:logging` | 🏗 in Arbeit (v0.1.0/A3) | Logger-Interface + AndroidLogcatLogger + RingBufferLogger + CompositeLogger |
-| `:core:crypto` | 📋 geplant (v0.1.0/A4 Skeleton) | Type-Stubs in v0.1.0, fachlich ab v0.5.0/v0.6.0 |
+| `:core:logging` | ✅ implementiert (v0.1.0/A3) | Logger-Interface, AndroidLogcatLogger, RingBufferLogger, CompositeLogger — alle Tests grün |
+| `:core:crypto` | ✅ implementiert (v0.1.0/A4 Skeleton) | KeyDerivation + Aead Interfaces mit TODO("v0.5.0/v0.6.0"); Skelett an ADR-0002-Phasen ausgerichtet |
 | `:core:ui` | 📋 geplant (v0.1.0/B1) | Material-3-Theme + gemeinsame Composables |
-| `:core:identity` | 📋 geplant (v0.1.0/A5) | DataStore-Key + Interface; Sanitisierung fremder Namen ab v0.5.0 |
+| `:core:identity` | ✅ implementiert (v0.1.0/A5) | IdentityRepository, DataStoreIdentityRepository, fallbackPeerName; alle Tests grün |
 | `:service:discovery` | 📋 geplant | v0.2.0 |
 | `:service:transport` | 📋 geplant | v0.2.0 (Skeleton), adaptiv ab v0.9.0 |
 | `:service:signaling` | 📋 geplant | v0.5.0 |
@@ -174,7 +174,13 @@ Die drei bestehenden ADRs wurden als inkonsistent und teilweise duplikativ zur A
 
 ## Offene Fragen
 
-Keine zum aktuellen Zeitpunkt. Der Architekt-Agent pflegt diese Liste während der Implementierung.
+Die folgenden Punkte wurden im Rahmen des Architekt-Reviews zu Phase A identifiziert und sind für spätere Releases vorgemerkt:
+
+| Modul (ID) | Befund | Geplant für |
+|------------|--------|-------------|
+| `:core:crypto` (OQ-01) | Noise-Snapshot-Artefakt: Version und Hash für `libs.versions.toml` noch nicht festgelegt | v0.5.0 |
+| `:core:logging` (OQ-02) | Replay-Semantik `RingBufferLogger`: bei neuem Subscriber werden alle 1000 gepufferten Einträge gesendet — gewünschtes Verhalten für Diagnose-Overlay muss spezifiziert werden | v0.2.0 |
+| `:core:identity` (OQ-03) | Combining-Marks-Begrenzung für `DisplayName` (fremde Eingaben) nicht umgesetzt; Sanitisierung fremder Peer-Namen folgt mit `:service:discovery` | v0.2.0 |
 
 ## Risiken
 
