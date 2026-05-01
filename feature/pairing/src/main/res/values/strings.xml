@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (c) 2026 relexx. BSD 3-Clause License.
+
+    Strings for the :feature:pairing module.
+
+    Naming convention (impl-plan-v0.1.0.md §B1):
+      - pairing_* : everything that lives in the pairing flow (channel choice,
+                    display-name input, QR scanner stub).
+-->
+<resources>
+    <!-- Top-level screen titles. -->
+    <string name="pairing_screen_title">Pairing</string>
+    <string name="pairing_choice_title">Join a channel</string>
+    <string name="pairing_display_name_title">Your name</string>
+    <string name="pairing_qr_title">Scan QR code</string>
+
+    <!-- Channel choice screen. -->
+    <string name="pairing_choice_intro">Pick how you want to enter a channel.</string>
+    <string name="pairing_choice_join">Join an existing channel</string>
+    <string name="pairing_choice_create">Create a new channel</string>
+
+    <!-- Display-name screen. -->
+    <string name="pairing_display_name_hint">This name will appear to other peers in the channel.</string>
+    <string name="pairing_display_name_placeholder">Enter your name</string>
+    <string name="pairing_display_name_counter">%1$d / 32</string>
+    <string name="pairing_display_name_error_empty">Please enter at least one visible character.</string>
+    <string name="pairing_display_name_error_too_long">The name is too long.</string>
+    <string name="pairing_display_name_continue">Continue</string>
+
+    <!-- QR scanner stub. -->
+    <string name="pairing_qr_coming_soon">QR scanning is available in v0.5.0.</string>
+    <string name="pairing_qr_back">Back</string>
+</resources>

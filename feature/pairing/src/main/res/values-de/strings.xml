@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (c) 2026 relexx. BSD 3-Clause License.
+
+    Deutsche Übersetzungen für das Modul :feature:pairing.
+    Pflege durch den Documenter-Agent. Glossar siehe .claude/agents/documenter.md.
+-->
+<resources>
+    <string name="pairing_screen_title">Pairing</string>
+    <string name="pairing_choice_title">Kanal beitreten</string>
+    <string name="pairing_display_name_title">Dein Name</string>
+    <string name="pairing_qr_title">QR-Code scannen</string>
+
+    <string name="pairing_choice_intro">Wähle, wie du einem Kanal beitreten möchtest.</string>
+    <string name="pairing_choice_join">Bestehendem Kanal beitreten</string>
+    <string name="pairing_choice_create">Neuen Kanal erstellen</string>
+
+    <string name="pairing_display_name_hint">Dieser Name erscheint bei anderen Peers im Kanal.</string>
+    <string name="pairing_display_name_placeholder">Namen eingeben</string>
+    <string name="pairing_display_name_counter">%1$d / 32</string>
+    <string name="pairing_display_name_error_empty">Bitte mindestens ein sichtbares Zeichen eingeben.</string>
+    <string name="pairing_display_name_error_too_long">Der Name ist zu lang.</string>
+    <string name="pairing_display_name_continue">Weiter</string>
+
+    <string name="pairing_qr_coming_soon">QR-Scannen kommt in v0.5.0.</string>
+    <string name="pairing_qr_back">Zurück</string>
+</resources>
