@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (c) 2026 relexx. BSD 3-Clause License.
+
+    Deutsche Übersetzungen für das Modul :service:lifecycle.
+    Pflege durch den Documenter-Agent. Glossar siehe .claude/agents/documenter.md.
+-->
+<resources>
+    <string name="lifecycle_notification_channel_name">HeraTalk-Kanal</string>
+    <string name="lifecycle_notification_channel_description">Zeigt an, dass HeraTalk die Kanal-Verbindung aufrecht hält.</string>
+
+    <string name="lifecycle_notification_title">HeraTalk</string>
+
+    <string name="lifecycle_notification_text_idle">Wird gestartet…</string>
+    <string name="lifecycle_notification_text_channel">Aktiv im Kanal</string>
+    <string name="lifecycle_notification_text_vox">Hört auf deine Stimme — Mikrofon aktiv</string>
+</resources>

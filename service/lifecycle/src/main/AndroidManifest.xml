@@ -1,2 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (c) 2026 relexx. BSD 3-Clause License.
+
+    The HeraTalkService declaration lives in the :app manifest because the service
+    requires the application's process and is started from the MainActivity. This
+    library manifest stays empty so that the module remains self-contained without
+    pulling Manifest entries that only make sense in the application context.
+
+    See architecture.md §11.1 for the full permission and foregroundServiceType
+    declaration that lands in :app during Phase E1.
+-->
 <manifest />

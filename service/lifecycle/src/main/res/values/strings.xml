@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (c) 2026 relexx. BSD 3-Clause License.
+
+    Strings for the :service:lifecycle module — exclusively notification copy
+    for the foreground service. See architecture.md §11.6 and §11.7.
+-->
+<resources>
+    <!-- Notification channel name shown in system notification settings. -->
+    <string name="lifecycle_notification_channel_name">HeraTalk channel</string>
+    <!-- Notification channel description shown in system notification settings. -->
+    <string name="lifecycle_notification_channel_description">Indicates that HeraTalk is keeping the channel connection alive.</string>
+
+    <!-- Notification title shown while the service is in foreground. -->
+    <string name="lifecycle_notification_title">HeraTalk</string>
+
+    <!-- Notification body when the service is starting up before any feature state is reported. -->
+    <string name="lifecycle_notification_text_idle">Starting…</string>
+    <!-- Notification body when the service holds the channel link without microphone. -->
+    <string name="lifecycle_notification_text_channel">Active in the channel</string>
+    <!-- Notification body when the service holds the microphone (VOX or hardware PTT). -->
+    <string name="lifecycle_notification_text_vox">Listening to your voice — microphone active</string>
+</resources>
