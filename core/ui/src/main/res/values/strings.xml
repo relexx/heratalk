@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (c) 2026 relexx. BSD 3-Clause License.
+
+    Shared strings for the :core:ui module.
+
+    Naming convention (impl-plan-v0.1.0.md §B1):
+      - common_*           : generic UI verbs (back / continue / cancel)
+      - network_quality_*  : NetworkQuality enum labels (good / degraded / poor / offline)
+
+    Strings tied to a specific feature live in that feature module's strings.xml,
+    not here.
+-->
+<resources>
+    <!-- Common UI verbs reused across features. -->
+    <string name="common_back">Back</string>
+    <string name="common_continue">Continue</string>
+    <string name="common_cancel">Cancel</string>
+
+    <!-- NetworkQuality labels. Mapped from NetworkQuality enum in :core:model. -->
+    <string name="network_quality_good">Good</string>
+    <string name="network_quality_degraded">Degraded</string>
+    <string name="network_quality_poor">Poor</string>
+    <string name="network_quality_offline">Offline</string>
+</resources>

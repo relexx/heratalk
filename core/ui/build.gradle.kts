@@ -29,6 +29,8 @@ kotlin {
 }
 
 dependencies {
+    // Module dependency restriction (impl-plan-v0.1.0.md §B1):
+    // :core:ui MUST only reference :core:model — no :core:logging, no :core:identity.
     implementation(project(":core:model"))
 
     val composeBom = platform(libs.compose.bom)

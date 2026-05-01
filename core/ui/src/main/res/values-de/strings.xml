@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (c) 2026 relexx. BSD 3-Clause License.
+
+    Deutsche Übersetzungen für das Modul :core:ui.
+    Pflege durch den Documenter-Agent. Glossar siehe .claude/agents/documenter.md.
+-->
+<resources>
+    <!-- Allgemeine UI-Verben. -->
+    <string name="common_back">Zurück</string>
+    <string name="common_continue">Weiter</string>
+    <string name="common_cancel">Abbrechen</string>
+
+    <!-- Netzwerk-Qualität — Mapping zum NetworkQuality-Enum in :core:model. -->
+    <string name="network_quality_good">Gut</string>
+    <string name="network_quality_degraded">Beeinträchtigt</string>
+    <string name="network_quality_poor">Schlecht</string>
+    <string name="network_quality_offline">Offline</string>
+</resources>
