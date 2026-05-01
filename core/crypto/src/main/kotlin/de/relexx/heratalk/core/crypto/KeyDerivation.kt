@@ -4,36 +4,66 @@ package de.relexx.heratalk.core.crypto
 /**
  * Pure domain API for key derivation in HeraTalk's security stack.
  *
- * Derives transport-level secrets from the Noise-handshake shared secret (see
- * `docs/architecture.md` §9). All derivations use HKDF-SHA256 with distinct
- * `info`-strings per stream type and direction, so cross-context replays
- * across broadcast/direct or send/recv are prevented by construction.
+ * Two distinct derivation flows live behind this interface (see ADR-0002 and
+ * `docs/architecture.md` §9):
  *
- * The interface intentionally exposes only the call sites used elsewhere in
- * the codebase. Implementations are wired in from v0.5.0 onwards once the
- * Noise-handshake (`:service:signaling`) starts producing real shared secrets.
+ * 1. **Phase-1 PSK derivation** ([derivePhase1Psk]) — runs once per channel
+ *    when the QR-code-supplied `channel_secret` is converted into the PSK fed
+ *    into `Noise_XXpsk2_25519_ChaChaPoly_SHA256`.
+ * 2. **SRTP key derivation** ([deriveSrtpKey]) — runs per session, after a
+ *    completed Noise handshake, to produce send/receive keys for broadcast and
+ *    direct media streams.
+ *
+ * Both flows use HKDF-SHA256 with **distinct** `info`-strings so that key
+ * material from one context cannot collide with another. Implementations MUST
+ * preserve those labels verbatim — they are part of the protocol contract and
+ * any drift breaks interoperability between peers.
+ *
+ * Implementations are wired in from v0.5.0 onwards once the Noise handshake
+ * (`:service:signaling`) starts producing real shared secrets.
  *
  * This interface has no Android or platform imports (per ADR-0004) and is
- * intended to remain pure JVM so that a future Kotlin-Multiplatform port
- * stays open.
+ * intended to remain pure JVM so that a future Kotlin-Multiplatform port stays
+ * open.
  */
 public interface KeyDerivation {
 
     /**
-     * Derives an SRTP key for a single stream from the Noise shared secret.
+     * Derives the 32-byte Noise PSK from the QR-code channel secret.
      *
-     * The returned key material is suitable input for an [Aead] that encrypts
-     * SRTP payloads. Distinct ([streamType], [direction]) pairs MUST yield
-     * cryptographically independent keys; implementations therefore pass
-     * stable, distinct labels into the HKDF `info` parameter.
+     * Per ADR-0002 the derivation is HKDF-SHA256 with:
+     * - `IKM` = [channelSecret] (32 bytes)
+     * - `salt` = empty
+     * - `info` = `"HeraTalk Phase 1 Noise PSK"` (UTF-8)
+     * - `L`    = 32 bytes
      *
-     * @param sharedSecret The 32-byte shared secret produced by the Noise handshake.
+     * The result is fed unchanged into the `XXpsk2` handshake. The same
+     * derivation also seeds the Phase-2 PSK for `KKpsk0` sessions.
+     *
+     * @param channelSecret The 32-byte channel secret obtained out-of-band
+     *   (QR-code).
+     * @return The 32-byte Noise PSK.
+     */
+    public fun derivePhase1Psk(channelSecret: ByteArray): ByteArray
+
+    /**
+     * Derives a 32-byte SRTP key for a single stream from the Noise shared
+     * secret.
+     *
+     * The returned key material feeds an [Aead] that encrypts SRTP payloads
+     * with `ChaCha20-Poly1305` (32-byte key, normative per ADR-0002). Distinct
+     * ([streamType], [direction]) pairs MUST yield cryptographically
+     * independent keys; implementations therefore pass stable, distinct labels
+     * into the HKDF `info` parameter (e.g. `"srtp/broadcast/send"`,
+     * `"srtp/direct/recv"` — see `architecture.md` §9).
+     *
+     * @param sharedSecret The shared secret produced by the Noise handshake
+     *   (32 bytes for the ChaChaPoly suite).
      * @param streamType Whether the SRTP key is used for a [StreamType.BROADCAST]
      *   or [StreamType.DIRECT] media stream.
      * @param direction Whether this side will [KeyDirection.SEND] or
      *   [KeyDirection.RECEIVE] on the stream.
-     * @return The derived key material. Length is implementation-defined but
-     *   matches the AEAD requirements of [Aead] (32 bytes for ChaCha20-Poly1305).
+     * @return The derived 32-byte key, suitable as input to [Aead].
      */
     public fun deriveSrtpKey(
         sharedSecret: ByteArray,
@@ -79,6 +109,10 @@ public enum class KeyDirection {
  * declare their dependency on the [KeyDerivation] interface and wire DI.
  */
 public class StubKeyDerivation : KeyDerivation {
+
+    override fun derivePhase1Psk(channelSecret: ByteArray): ByteArray {
+        throw NotImplementedError("KeyDerivation.derivePhase1Psk is implemented in v0.5.0")
+    }
 
     override fun deriveSrtpKey(
         sharedSecret: ByteArray,

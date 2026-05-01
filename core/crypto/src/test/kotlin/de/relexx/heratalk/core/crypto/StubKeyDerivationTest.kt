@@ -11,6 +11,15 @@ import org.junit.jupiter.api.Test
 class StubKeyDerivationTest {
 
     private val sharedSecret = ByteArray(32)
+    private val channelSecret = ByteArray(32)
+
+    @Test
+    fun `derivePhase1Psk throws NotImplementedError`() {
+        val subject = StubKeyDerivation()
+        assertThrows(NotImplementedError::class.java) {
+            subject.derivePhase1Psk(channelSecret)
+        }
+    }
 
     @Test
     fun `deriveSrtpKey throws NotImplementedError for broadcast send`() {

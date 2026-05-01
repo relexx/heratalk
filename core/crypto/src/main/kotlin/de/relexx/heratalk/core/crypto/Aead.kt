@@ -4,22 +4,32 @@ package de.relexx.heratalk.core.crypto
 /**
  * Pure domain API for authenticated encryption with associated data (AEAD).
  *
- * HeraTalk uses **ChaCha20-Poly1305** (see `docs/architecture.md` §9) for both
- * SRTP media and Noise transport messages. This interface abstracts the AEAD
- * primitive so that callers (`:service:media`, `:service:signaling`) depend on
- * a stable contract rather than a concrete provider (BouncyCastle is added in
- * v0.5.0).
+ * HeraTalk uses **ChaCha20-Poly1305** (see ADR-0002 and `docs/architecture.md`
+ * §9) for both Noise transport messages (from v0.5.0) and SRTP media (from
+ * v0.6.0). This interface abstracts the AEAD primitive so that callers
+ * (`:service:signaling`, `:service:media`) depend on a stable contract rather
+ * than a concrete provider — BouncyCastle is wired in v0.5.0 alongside the
+ * Noise handshake.
  *
- * Invariants that every implementation MUST uphold:
+ * Invariants every implementation MUST uphold:
  *
  * 1. **Nonce uniqueness per key.** Reusing a (`key`, `nonce`) pair is a
- *    catastrophic key-stream reuse. Callers are responsible for nonce
- *    management; implementations MUST NOT rotate nonces silently.
- * 2. **Constant-time tag verification.** [open] MUST compare the tag in
- *    constant time (`.claude/rules.md` Rule 12).
+ *    catastrophic key-stream reuse. Callers manage nonces; implementations
+ *    MUST NOT silently rotate them.
+ * 2. **Constant-time tag verification.** [open] MUST compare tags in constant
+ *    time (`.claude/rules.md` Rule 12). `Arrays.equals` and friends are
+ *    forbidden in the tag path.
  * 3. **No partial output on failure.** [open] MUST NOT return any plaintext
- *    bytes if authentication fails — return `null` or throw before any
- *    plaintext byte is observable.
+ *    bytes if authentication fails — return `null` before any plaintext is
+ *    observable to the caller.
+ *
+ * **Why [open] returns `ByteArray?` instead of `Result<ByteArray>`:** AEAD
+ * failure is an expected hot-path event — every dropped/spoofed RTP packet
+ * runs through it. `null` keeps the failure path allocation-free; `Result`
+ * would wrap each call in an extra object and a `Throwable` in the failure
+ * branch. The caller's reaction is invariably "drop packet", so the loss in
+ * type expressiveness is negligible. This is a deliberate exception to the
+ * project-wide `Result<T>` convention for expected errors.
  *
  * This interface has no Android or platform imports (per ADR-0004) and is
  * pure JVM.
@@ -30,11 +40,11 @@ public interface Aead {
      * Encrypts [plaintext] under [key] and authenticates [associatedData].
      *
      * The returned byte array carries the AEAD ciphertext followed by the
-     * authentication tag (Poly1305: 16 bytes) — the exact layout is defined
-     * by the implementation but MUST round-trip with [open].
+     * 16-byte Poly1305 authentication tag. The exact layout is fixed by the
+     * implementation but MUST round-trip with [open].
      *
-     * @param key Symmetric key (32 bytes for ChaCha20-Poly1305).
-     * @param nonce Per-message nonce (12 bytes for ChaCha20-Poly1305). MUST be
+     * @param key 32-byte symmetric key (ChaCha20-Poly1305).
+     * @param nonce 12-byte per-message nonce (ChaCha20-Poly1305). MUST be
      *   unique for the lifetime of [key].
      * @param plaintext The data to encrypt. May be empty.
      * @param associatedData Authenticated but unencrypted data (e.g. SRTP
@@ -53,18 +63,18 @@ public interface Aead {
      *
      * Returns the decrypted plaintext on success or `null` if authentication
      * fails. The implementation MUST perform a constant-time tag comparison
-     * (see invariant 2) and MUST NOT leak any plaintext bytes when the tag
-     * is invalid (invariant 3).
+     * (invariant 2) and MUST NOT leak any plaintext bytes when the tag is
+     * invalid (invariant 3).
      *
-     * @param key Symmetric key (32 bytes for ChaCha20-Poly1305).
-     * @param nonce Per-message nonce (12 bytes for ChaCha20-Poly1305). Must
-     *   match the nonce used by the sender's [seal] call.
+     * @param key 32-byte symmetric key (ChaCha20-Poly1305).
+     * @param nonce 12-byte per-message nonce (ChaCha20-Poly1305). MUST match
+     *   the nonce used by the sender's [seal] call.
      * @param ciphertext Ciphertext concatenated with authentication tag, as
      *   produced by [seal].
-     * @param associatedData Authenticated but unencrypted data. Must match
+     * @param associatedData Authenticated but unencrypted data. MUST match
      *   the sender's input bit-for-bit.
-     * @return Plaintext bytes on success, `null` if the tag is invalid or
-     *   the input is malformed.
+     * @return Plaintext bytes on success, `null` if the tag is invalid or the
+     *   input is malformed (see invariants 2 and 3).
      */
     public fun open(
         key: ByteArray,
@@ -77,9 +87,14 @@ public interface Aead {
 /**
  * Skeleton implementation that throws [NotImplementedError] on every call.
  *
- * Real ChaCha20-Poly1305 arrives with SRTP in **v0.6.0** (see `docs/releases.md`).
- * Until then this stub exists so that downstream modules can already declare
- * their dependency on the [Aead] interface and wire DI.
+ * The real ChaCha20-Poly1305 implementation arrives in **v0.5.0** for the
+ * Noise transport AEAD and is reused by SRTP from **v0.6.0** onwards (see
+ * `docs/releases.md`). Until then this stub exists so that downstream modules
+ * can already declare their dependency on the [Aead] interface and wire DI.
+ *
+ * The stub deliberately throws — even from [open], whose contract returns
+ * `null` on failure. Throwing is louder than silently dropping packets and
+ * surfaces accidental wiring before the real implementation lands.
  */
 public class StubAead : Aead {
 
@@ -89,7 +104,7 @@ public class StubAead : Aead {
         plaintext: ByteArray,
         associatedData: ByteArray,
     ): ByteArray {
-        throw NotImplementedError("Aead.seal is implemented in v0.6.0")
+        throw NotImplementedError("Aead.seal is implemented in v0.5.0")
     }
 
     override fun open(
@@ -98,6 +113,6 @@ public class StubAead : Aead {
         ciphertext: ByteArray,
         associatedData: ByteArray,
     ): ByteArray? {
-        throw NotImplementedError("Aead.open is implemented in v0.6.0")
+        throw NotImplementedError("Aead.open is implemented in v0.5.0")
     }
 }
