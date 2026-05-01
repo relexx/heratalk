@@ -36,6 +36,8 @@ public fun SectionHeader(
     )
 }
 
+// Preview literals are not user-visible at runtime — no i18n required.
+@Suppress("HardcodedText")
 @Preview(name = "Light", showBackground = true)
 @Composable
 private fun SectionHeaderPreviewLight() {
@@ -47,6 +49,8 @@ private fun SectionHeaderPreviewLight() {
     }
 }
 
+// Preview literals are not user-visible at runtime — no i18n required.
+@Suppress("HardcodedText")
 @Preview(name = "Dark", showBackground = true)
 @Composable
 private fun SectionHeaderPreviewDark() {

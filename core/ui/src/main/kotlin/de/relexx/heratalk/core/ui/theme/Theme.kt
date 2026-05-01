@@ -18,13 +18,13 @@ import androidx.compose.ui.graphics.Color
  */
 public data class HeraTalkExtraColors(
     /** Warning hue used by `NetworkQualityBadge` in the [DEGRADED][de.relexx.heratalk.core.model.NetworkQuality.DEGRADED] state. */
-    val warning: Color,
+    public val warning: Color,
 
     /** Accent hue used to mark UI affordances tied to direct (1:1) calls. */
-    val directCall: Color,
+    public val directCall: Color,
 
     /** Neutral grey used by `NetworkQualityBadge` in the [OFFLINE][de.relexx.heratalk.core.model.NetworkQuality.OFFLINE] state. */
-    val offline: Color,
+    public val offline: Color,
 )
 
 private val LightExtraColors = HeraTalkExtraColors(

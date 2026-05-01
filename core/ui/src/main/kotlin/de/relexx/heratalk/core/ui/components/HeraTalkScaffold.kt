@@ -69,6 +69,8 @@ public fun HeraTalkScaffold(
     )
 }
 
+// Preview literals are not user-visible at runtime — no i18n required.
+@Suppress("HardcodedText")
 @Preview(name = "Light", showBackground = true)
 @Composable
 private fun HeraTalkScaffoldPreviewLight() {
@@ -84,6 +86,8 @@ private fun HeraTalkScaffoldPreviewLight() {
     }
 }
 
+// Preview literals are not user-visible at runtime — no i18n required.
+@Suppress("HardcodedText")
 @Preview(name = "Dark", showBackground = true)
 @Composable
 private fun HeraTalkScaffoldPreviewDark() {
