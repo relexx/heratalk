@@ -2,15 +2,15 @@
 
 > **Lebendes Dokument**, gepflegt vom Orchestrator-Agent und ergänzt vom Dokumentierer. Enthält den aktuellen Stand, alle getroffenen Entscheidungen und offene Risiken. Bei jedem PR, der Architektur oder Release-Status berührt, wird dieses Dokument mit aktualisiert.
 
-Stand: Release v0.1.0 (Grundgerüst) — Branch `release/v0.1.0`, Phase A (A1–A5) und Phase B (B1, B2a) vollständig abgeschlossen (2026-05-01). B2b bewusst zurückgestellt — Lint-HardcodedText-Pflicht (B2a) deckt den Schutz ab. Nächster Schritt: Phase C (Service- und Feature-Skelette).
+Stand: Release v0.1.0 (Grundgerüst) — Branch `release/v0.1.0`, Phase A (A1–A5), Phase B (B1, B2a) und **Phase C (C1–C6) vollständig abgeschlossen (2026-05-01)**. B2b bewusst zurückgestellt — Lint-HardcodedText-Pflicht (B2a) deckt den Schutz ab. Nächster Schritt: **Phase D — Koin-DI-Graph**.
 
 ## Aktueller Release
 
-**In Arbeit:** v0.1.0 — Grundgerüst (Kick-off 2026-04-30, Phase A vollständig abgeschlossen 2026-05-01, Phase B vollständig abgeschlossen 2026-05-01)
+**In Arbeit:** v0.1.0 — Grundgerüst (Kick-off 2026-04-30, Phase A vollständig abgeschlossen 2026-05-01, Phase B vollständig abgeschlossen 2026-05-01, Phase C vollständig abgeschlossen 2026-05-01)
 **Nächster geplanter Release:** v0.2.0 — PoC Paketversand
 **Letzter abgeschlossener Release:** (noch keiner)
 **Aktiver Branch:** `release/v0.1.0`
-**Nächster Schritt:** Phase C — Service- und Feature-Skelette (C1: `:service:lifecycle`, C2: restliche Service-Skelette, C3–C6: Feature-Skelette).
+**Nächster Schritt:** Phase D — Koin-DI-Graph (D1: Modul-Bindings pro Library-Modul; D2: Koin-Init in `HeraTalkApplication`).
 
 ## Fortschritt v0.1.0 — Phasen-Tracking
 
@@ -24,7 +24,12 @@ Stand: Release v0.1.0 (Grundgerüst) — Branch `release/v0.1.0`, Phase A (A1–
 | B1 | `:core:ui` (Material-3-Theme, gemeinsame Composables, Strings) | ✅ abgeschlossen, Architekt-Review-Fixes eingearbeitet |
 | B2a | Lint-Enforcement-Smoketest (HardcodedText als Error) | ✅ abgeschlossen |
 | B2b | Custom-detekt-Rule `HardcodedStringInComposable` | ⏸ bewusst zurückgestellt — Lint-HardcodedText-Pflicht reicht; TODO in `detekt.yml` |
-| C1–C6 | Service- und Feature-Skelette | 📋 geplant |
+| C1 | `:service:lifecycle` (Foreground-Service, FeatureState, eigene Strings) | ✅ abgeschlossen |
+| C2 | `:service:discovery`/`transport`/`signaling`/`media`/`audio`/`ptt`/`relay` Skelette | ✅ abgeschlossen |
+| C3 | `:feature:pairing` (Channel-Choice, Display-Name, QR-Stub, ViewModel) | ✅ abgeschlossen, vom Architekten freigegeben |
+| C4 | `:feature:channel` (Skelett mit fixem PTT-Anker, leerer Roster) | ✅ abgeschlossen, vom Architekten freigegeben |
+| C5 | `:feature:settings` (Sektionen, Sprache funktional, Display-Name-Edit) | ✅ abgeschlossen, vom Architekten freigegeben |
+| C6 | `:feature:direct` (leerer Slot mit `DirectFeature`-Marker) | ✅ abgeschlossen |
 | D1–D2 | Koin-DI-Graph | 📋 geplant |
 | E1–E4 | `:app`-Einstiegspunkt | 📋 geplant |
 | F1–F3 | CI, Doku-Sync, Geräte-Test | 📋 geplant |
@@ -45,18 +50,18 @@ Stand: Release v0.1.0 (Grundgerüst) — Branch `release/v0.1.0`, Phase A (A1–
 | `:core:crypto` | ✅ implementiert (v0.1.0/A4 Skeleton) | KeyDerivation + Aead Interfaces mit TODO("v0.5.0/v0.6.0"); Skelett an ADR-0002-Phasen ausgerichtet |
 | `:core:ui` | ✅ implementiert (v0.1.0/B1) | HeraTalkTheme light/dark, HeraTalkColors, HeraTalkExtraColors, HeraTalkScaffold, NetworkQualityBadge, SectionHeader; EN+DE Strings; Compose-Previews; Architekt-Review-Fixes eingearbeitet |
 | `:core:identity` | ✅ implementiert (v0.1.0/A5) | IdentityRepository, DataStoreIdentityRepository, fallbackPeerName; alle Tests grün |
-| `:service:discovery` | 📋 geplant | v0.2.0 |
-| `:service:transport` | 📋 geplant | v0.2.0 (Skeleton), adaptiv ab v0.9.0 |
-| `:service:signaling` | 📋 geplant | v0.5.0 |
-| `:service:media` | 📋 geplant | v0.4.0 (unverschlüsselt), SRTP ab v0.6.0 |
-| `:service:audio` | 📋 geplant | v0.3.0 |
-| `:service:ptt` | 📋 geplant | v0.7.0 |
-| `:service:relay` | 📋 geplant | v0.10.0 |
-| `:service:lifecycle` | 📋 geplant | v0.1.0 (Foreground-Service-Skeleton), dynamischer Typ-Wechsel ab v0.7.0 (VOX) |
-| `:feature:pairing` | 📋 geplant | v0.5.0 |
-| `:feature:channel` | 📋 geplant | v0.1.0 (Skeleton), fachlich ab v0.2.0 |
-| `:feature:direct` | 📋 geplant | v0.8.0 |
-| `:feature:settings` | 📋 geplant | v0.1.0 (Skeleton), fachlich ab v0.7.0 |
+| `:service:discovery` | ✅ Skelett (v0.1.0/C2) | Fachlich ab v0.2.0 — `NsdManager` und Broadcast-Beacon |
+| `:service:transport` | ✅ Skelett (v0.1.0/C2) | UDP unicast v0.2.0, broadcast v0.4.0, TCP-Relay v0.10.0 |
+| `:service:signaling` | ✅ Skelett (v0.1.0/C2) | Noise-Handshake + TCP-Control-Plane ab v0.5.0 |
+| `:service:media` | ✅ Skelett (v0.1.0/C2) | Unverschlüsselter RTP v0.4.0, SRTP-Wrapping v0.6.0 |
+| `:service:audio` | ✅ Skelett (v0.1.0/C2) | AudioRecord + libopus-JNI ab v0.3.0 |
+| `:service:ptt` | ✅ Skelett (v0.1.0/C2) | Floor-Arbitrierung + VOX-Hangover ab v0.7.0 |
+| `:service:relay` | ✅ Skelett (v0.1.0/C2) | Routing über dritten Peer ab v0.10.0 |
+| `:service:lifecycle` | ✅ Skelett (v0.1.0/C1) | Foreground-Service mit `connectedDevice`/`microphone`-Switch; Mic-Pfad ab v0.7.0 |
+| `:feature:pairing` | ✅ Skelett (v0.1.0/C3) | Display-Name funktional, QR-Scan-Logik ab v0.5.0 |
+| `:feature:channel` | ✅ Skelett (v0.1.0/C4) | Fachlich ab v0.2.0 (Roster), v0.4.0 (PTT-Audio) |
+| `:feature:direct` | ✅ Slot belegt (v0.1.0/C6) | Direct-Call-UI komplett ab v0.8.0 |
+| `:feature:settings` | ✅ Skelett (v0.1.0/C5) | Sprache + Display-Name funktional; Audio-/Netzwerk-/Notification-Sektionen ab v0.7.0/v0.8.0/v0.9.0 |
 
 ## Entscheidungsprotokoll
 
@@ -220,6 +225,81 @@ Conditions: keine.
 
 Phase B ist freigegeben. Phase C kann gestartet werden — siehe aktualisierten `docs/impl-plan-v0.1.0.md §C` mit Architekt-Korrekturen (String-Quelle für `:service:lifecycle`, KDoc-Pflicht, appcompat-Dependency-Hinweis, feature → feature-Dependency-Akzeptanz für Display-Name-Wiederverwendung).
 
+### 2026-05-01 · Phase C abgeschlossen: Service- und Feature-Skelette
+
+**C1 — `:service:lifecycle`** (commit `9d089e6`):
+
+- `HeraTalkService : Service()` mit `start(context)`/`stop(context)`-Companion, `setFeatureState(state)`-API, `applyState(...)`-Logik für den `connectedDevice`/`microphone`-Foreground-Type-Switch (architecture.md §11.3).
+- `data class FeatureState(channelActive, voxEnabled, hardwarePttEnabled)` mit `Idle`-Companion.
+- `NotificationCompat`-Builder mit lokalisierter Channel-/Title-/Text-Struktur. Eigene `values/values-de`-Strings (`lifecycle_notification_*`) — bewusst keine `:core:ui`-Abhängigkeit, damit die `feature → service → core`-Richtung sauber bleibt.
+- `<manifest />` bleibt leer mit Kommentar; Service-Deklaration kommt in `:app` (Phase E1).
+- TODO(developer)-Markierung im VOX-Pfad für v0.7.0.
+
+**C2 — Service-Skelette `:service:discovery`/`transport`/`signaling`/`media`/`audio`/`ptt`/`relay`** (commits `29b85b4`, `685b610`, `8c5695d`, `26bb50f`, `3a15e24`, `11bccc0`, `4c22edf`):
+
+- Pro Modul: ein `interface`-File mit Public API + KDoc auf jedem `public` Member, ein `XxxStub`-No-op mit `TODO(developer): vX.Y.0`-Markern, leeres `<manifest />`. Keine Tests in v0.1.0 (Stubs testen wäre Zeremonie).
+- Sealed-Hierarchien für Zustandsmaschinen: `ControlPlaneState` (Idle/Connecting/Connected/Failed), `FloorState` (Idle/HeldByLocal/HeldByRemote).
+- Datenklassen mit Array-Inhalt (`TransportPacket`, `DecodedFrame`) überschreiben `equals/hashCode` für inhaltliche Gleichheit.
+- KDoc-Lücken aus dem Plan-§C2-Hinweis (`Connected.peer`, `HeldByRemote.holder`) wurden geschlossen.
+- Pro Modul ein eigener Commit gemäß Plan-§C2-Granularitätsforderung.
+
+**C3 — `:feature:pairing`** (commit `d4b5bf8`):
+
+- `ChannelChoiceScreen`, `DisplayNameScreen` (validierender Pflicht-Eingabe-Screen mit Live-Codepoint-Counter und deaktiviertem "Weiter"-Button bei leerer/zu-langer Eingabe), `QrScanScreen` (Stub mit "verfügbar in v0.5.0"-Hinweis).
+- `PairingViewModel(identityRepository)`: `DisplayNameInputState` mit `canSubmit`-Property, `onDisplayNameChanged(...)` re-evaluiert Validation, `onSubmit()` schreibt validen `DisplayName` über `IdentityRepository.setDisplayName(...)`. Bidi-Override-Validierung erfolgt im `DisplayName.init` aus `:core:model`; etwaige `IllegalArgumentException` flowt als `PersistResult.Error` zurück.
+- Strings vollständig unter `pairing_*` in EN/DE; Compose-Previews für Light/Dark.
+- KDoc auf allen `public` Composables, ViewModel, sealed `PersistResult`, `enum DisplayNameValidationError`.
+
+**C4 — `:feature:channel`** (commit `3798c69`):
+
+- `ChannelScreen` mit `HeraTalkScaffold`-Header, Section-Header "Peers", leerem Roster-Placeholder ("erscheinen hier sobald Discovery in v0.2.0…"), und einem zentral unten platzierten 110-dp-Kreis-PTT-Button (deaktiviert, mit Label "Drücken zum Sprechen" + Hilfstext "Verfügbar in v0.4.0").
+- Strings unter `channel_*` in EN/DE; Compose-Previews für Light/Dark.
+
+**C5 — `:feature:settings`** (commits `43ae446` für Build, `f3494df` für Code):
+
+- Sektionen-Reihenfolge gemäß UX-Revision 2026-04-25: Audio (Stub) → App-Verhalten (live) → Netzwerk (Stub) → Benachrichtigungen (Stub) → Features+Berechtigungen (Stub) → Kanal (live) → Info.
+- App-Verhalten: Sprach-Radio (System/DE/EN) ruft `AppCompatDelegate.setApplicationLocales(LocaleListCompat...)` auf und persistiert in modul-eigenem DataStore. Theme-Radio + Update-Check-Switch + Auto-Resume-Switch persistieren ihre Werte für spätere Releases.
+- Kanal: Display-Name-Eintrag liest `:core:identity.IdentityRepository.displayName` und exponiert einen Edit-Button — `:feature:settings` hat **keine** Gradle-Abhängigkeit auf `:feature:pairing` (Empfehlung des Vorgänger-Orchestrators); Navigation zu `DisplayNameScreen` wird in `:app` (Phase E2) gehoist. Damit ist die Plan-§C5-Notiz über akzeptierte feature → feature-Abhängigkeit obsolet.
+- `androidx.appcompat:appcompat:1.7.0` neu in `libs.versions.toml`, ausschließlich `:feature:settings` referenziert.
+- Strings unter `settings_*` in EN/DE; `HorizontalDivider` (nicht das deprecate `Divider`) zwischen Sektionen.
+
+**C6 — `:feature:direct`** (commit `23950f8`):
+
+- Modul anlegen ohne UI; einziger Inhalt ist `object DirectFeature { const val PLACEHOLDER_RELEASE = "v0.8.0" }` als Marker, damit ktlint's `no-empty-file`-Regel nicht greift. Modul wird in v0.8.0 mit der echten Direct-Call-UI ersetzt.
+
+**Build-/CI-Befunde:**
+
+- `./gradlew assembleDebug`, `./gradlew detekt`, `./gradlew spotlessCheck` jeweils einzeln grün.
+- `./gradlew assembleDebug detekt spotlessCheck` zusammen schlägt mit Configuration-Cache-Implicit-Dependency-Warnung fehl (Gradle-9.4.1, `:detekt` ↔ `:core:identity:checkDebugAarMetadata`). Sequenziell läuft alles. Tracked als OQ-07.
+- Insgesamt 12 Phase-C-Commits + 1 Build-Setup-Commit + 1 Tooling-Commit (architect.md YAML-Quoting). Branch ist gepusht.
+
+### Architect Review for Phase C (v0.1.0/C1–C6)
+
+Date: 2026-05-01
+Result: APPROVED
+
+Findings (alle nicht-blockierend):
+
+- Modul-Grenzen: `:service:lifecycle` zieht `:core:model` + `:core:logging` (kein `:core:ui`); andere Service-Module nur `:core:model` + `:core:logging` + `kotlinx.coroutines.android`. **OK.**
+- Feature-Module: `:feature:pairing`/`channel`/`direct` ziehen `:core:model` + `:core:ui` (+ `:core:identity` bei pairing). `:feature:settings` zusätzlich `androidx.appcompat`, **kein** `:feature:pairing` (Plan-§C5-Empfehlung "feature → feature akzeptiert" wurde durch saubere Navigation-Lift in `:app` obsolet). **OK.**
+- Stub-Qualität: KDoc dokumentiert die Ziel-Releases präzise, alle TODO(developer)-Marker referenzieren konkrete `vX.Y.0`-Releases. **OK.**
+- Sealed-Hierarchien (`ControlPlaneState`, `FloorState`, `PersistResult`, `DisplayNameValidationError`) sind sauber modelliert; alle Konstruktor-Parameter haben KDoc (`UndocumentedPublicProperty` greift sonst). **OK.**
+- Sicherheits-Stellen: `MediaEngine` und `AudioEngine` verweisen explizit auf `.claude/rules.md` Rule 4 / Rule 15. `PairingViewModel.onSubmit()` wrapped die `DisplayName(...)`-Konstruktion in `runCatching`, damit Bidi-Override-Validierungs-Exceptions die App nicht crashen. **OK.**
+- `HeraTalkService.applyState(...)`: Race-Condition-Kommentar erklärt die "5-Sekunden-Frist"-Erst-`startForeground` korrekt. **OK.**
+- KDoc auf allen `public` Membern aller neuen Module. **OK.**
+- Compose-Previews Light + Dark in jedem Feature-Screen. **OK.**
+
+Conditions: keine.
+
+Open-Questions für Folge-Releases (in den OQ-Tabelle ergänzt):
+
+- **OQ-04** (`:service:lifecycle`): Notification-Icon ist Platzhalter (`stat_sys_data_bluetooth`). Eigenes Asset mit Phase E1 / v1.0.
+- **OQ-05** (Repo-Hygiene): `.gitignore` um `**/bin/` ergänzen — Eclipse/IDE-Output liegt aktuell untracked herum.
+- **OQ-06** (`:feature:direct`): `DirectFeature`-Marker mit der ersten echten UI in v0.8.0 entfernen.
+- **OQ-07** (CI): Gradle-9.4.1-Configuration-Cache-Implicit-Dependency zwischen `:detekt` und `:core:identity:checkDebugAarMetadata`. Sequenziell unkritisch; in CI getrennte Jobs oder explizites `mustRunAfter` setzen.
+
+Phase C ist freigegeben. Phase D (Koin-DI-Graph) kann starten.
+
 ## Offene Fragen
 
 Die folgenden Punkte wurden im Rahmen des Architekt-Reviews zu Phase A identifiziert und sind für spätere Releases vorgemerkt:
@@ -229,6 +309,10 @@ Die folgenden Punkte wurden im Rahmen des Architekt-Reviews zu Phase A identifiz
 | `:core:crypto` (OQ-01) | Noise-Snapshot-Artefakt: Version und Hash für `libs.versions.toml` noch nicht festgelegt | v0.5.0 |
 | `:core:logging` (OQ-02) | Replay-Semantik `RingBufferLogger`: bei neuem Subscriber werden alle 1000 gepufferten Einträge gesendet — gewünschtes Verhalten für Diagnose-Overlay muss spezifiziert werden | v0.2.0 |
 | `:core:identity` (OQ-03) | Combining-Marks-Begrenzung für `DisplayName` (fremde Eingaben) nicht umgesetzt; Sanitisierung fremder Peer-Namen folgt mit `:service:discovery` | v0.2.0 |
+| `:service:lifecycle` (OQ-04) | Notification-Icon ist Platzhalter (`android.R.drawable.stat_sys_data_bluetooth`); eigenes App-Asset entwerfen | v0.1.0/E1 oder v1.0 |
+| Repo-Hygiene (OQ-05) | `.gitignore` deckt `**/bin/` (Eclipse/IDE-Output) nicht ab; Dirs liegen untracked herum | v0.1.0 (vor Tagging) |
+| `:feature:direct` (OQ-06) | `DirectFeature`-Marker-Object existiert nur, weil ktlint `no-empty-file` greift; entfällt mit echter UI | v0.8.0 |
+| CI/Gradle (OQ-07) | Configuration-Cache-Implicit-Dependency zwischen `:detekt` und `:core:identity:checkDebugAarMetadata` (Gradle 9.4.1); aufrufbar nur sequenziell | v0.2.0 |
 
 ## Risiken
 

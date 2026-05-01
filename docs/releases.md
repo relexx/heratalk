@@ -31,7 +31,7 @@ Legende: 📋 geplant · 🏗 in Arbeit · ✅ abgeschlossen · ⏸ pausiert
 
 ## v0.1.0 — Grundgerüst
 
-**Status:** 🏗 in Arbeit (Kick-off 2026-04-30; Phase A abgeschlossen 2026-05-01; Phase B abgeschlossen 2026-05-01).
+**Status:** 🏗 in Arbeit (Kick-off 2026-04-30; Phase A abgeschlossen 2026-05-01; Phase B abgeschlossen 2026-05-01; Phase C abgeschlossen 2026-05-01).
 
 **Implementierte Module (Phase A):**
 
@@ -49,7 +49,24 @@ Legende: 📋 geplant · 🏗 in Arbeit · ✅ abgeschlossen · ⏸ pausiert
 | `:core:ui`     | B1    | `HeraTalkTheme` (light + dark), `HeraTalkColors` (Ampel-Farbtokens), `HeraTalkExtraColors` (warning/directCall/offline via `CompositionLocal`), `HeraTalkScaffold`, `NetworkQualityBadge`, `SectionHeader`; EN+DE Strings (`common_*`, `network_quality_*`); Compose-Previews (light/dark) |
 | Lint-Smoketest | B2a   | `HardcodedText` + `MissingTranslation` als Error in `lint.xml` und in CI erzwungen; detekt + spotless grün                                                                                                                                                                         |
 
-**Noch ausstehend (Phase C–F):** Service-Skelette, Feature-Skelette, Koin-DI-Graph, `:app`-Einstiegspunkt, CI-Workflows, Doku-Sync, Geräte-Test.
+**Implementierte Module (Phase C):**
+
+| Modul                | Phase | Inhalt                                                                                                                                                                                                                                                                                          |
+|----------------------|-------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `:service:lifecycle` | C1    | `HeraTalkService` (Foreground-Service mit `connectedDevice`/`microphone`-Type-Switch), `FeatureState` (`channelActive`/`voxEnabled`/`hardwarePttEnabled`), eigene EN+DE Notification-Strings, leeres Library-Manifest. Mic-Pfad TODO(v0.7.0)                                                  |
+| `:service:discovery` | C2    | `PeerDiscovery`-Interface (`Flow<Set<Peer>>`, `start`/`stop`) + `PeerDiscoveryStub`. Real-Implementation v0.2.0                                                                                                                                                                                  |
+| `:service:transport` | C2    | `Transport`-Interface (`suspend send`, `Flow<TransportPacket>`) + `TransportStub`. Real-Impl: UDP unicast v0.2.0 / broadcast v0.4.0 / TCP-Relay v0.10.0                                                                                                                                          |
+| `:service:signaling` | C2    | `ControlPlane`-Interface + sealed `ControlPlaneState` (Idle/Connecting/Connected/Failed) + `ControlPlaneStub`. Real-Impl Noise-Handshake v0.5.0                                                                                                                                                  |
+| `:service:media`     | C2    | `MediaEngine`-Interface + `DecodedFrame` + `MediaEngineStub`. Real-Impl unverschlüsselt v0.4.0, SRTP v0.6.0                                                                                                                                                                                       |
+| `:service:audio`     | C2    | `AudioEngine`-Interface (`startCapture`/`stopCapture`/`encodedFrames`/`playFrame`) + `AudioEngineStub`. Real-Impl AudioRecord + libopus-JNI v0.3.0                                                                                                                                              |
+| `:service:ptt`       | C2    | `FloorController`-Interface + sealed `FloorState` (Idle/HeldByLocal/HeldByRemote) + `FloorControllerStub`. Real-Arbitrierung v0.7.0                                                                                                                                                              |
+| `:service:relay`     | C2    | `RelayService`-Interface + `RelayOffer` + `RelayServiceStub`. Real-Impl Relay-Routing v0.10.0                                                                                                                                                                                                     |
+| `:feature:pairing`   | C3    | `ChannelChoiceScreen`, `DisplayNameScreen` (validierender Pflicht-Eingabe-Screen), `QrScanScreen` (Stub für v0.5.0), `PairingViewModel` schreibt validen Namen via `IdentityRepository`. EN+DE Strings (`pairing_*`)                                                                            |
+| `:feature:channel`   | C4    | `ChannelScreen` mit `HeraTalkScaffold`, leerer Roster, deaktiviertem 110-dp PTT-Anker. EN+DE Strings (`channel_*`). Fachlich v0.2.0/v0.4.0                                                                                                                                                       |
+| `:feature:settings`  | C5    | Sektionen-Sortierung gemäß UX-2026-04-25; Sprache funktional via `AppCompatDelegate.setApplicationLocales(...)`, Theme/Update-Check/Auto-Resume persistiert; Display-Name-Section liest/zeigt aus `:core:identity`. EN+DE Strings (`settings_*`). `androidx.appcompat:1.7.0` neu in Catalog       |
+| `:feature:direct`    | C6    | Leerer Modul-Slot mit `DirectFeature`-Marker (ktlint-`no-empty-file`-Workaround). UI ab v0.8.0                                                                                                                                                                                                    |
+
+**Noch ausstehend (Phase D–F):** Koin-DI-Graph, `:app`-Einstiegspunkt, CI-Workflows-Verifikation, Doku-Sync, Geräte-Test.
 
 **Ziel:** Kompilierbares App-Projekt mit allen Berechtigungen, UI-Gerüst und vollständiger Projektinfrastruktur. Noch kein Netzwerk, noch kein Audio.
 
