@@ -24,9 +24,16 @@ public class DataStoreIdentityRepository(
     private val dataStore: DataStore<Preferences>,
 ) : IdentityRepository {
 
-    public companion object {
-        /** Preferences key used to persist the display name. */
-        public val DISPLAY_NAME_KEY: Preferences.Key<String> =
+    internal companion object {
+        /**
+         * Preferences key used to persist the display name.
+         *
+         * `internal` so the constant is reachable from same-module unit tests but
+         * not exposed as part of the module's public API surface — callers depend
+         * only on [IdentityRepository], never on the underlying storage layout
+         * (see ADR-0004 §3 — minimize adapter visibility).
+         */
+        internal val DISPLAY_NAME_KEY: Preferences.Key<String> =
             stringPreferencesKey("display_name")
     }
 
