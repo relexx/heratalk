@@ -198,6 +198,28 @@ Die drei bestehenden ADRs wurden als inkonsistent und teilweise duplikativ zur A
 
 **B2b — Custom-detekt-Rule zurückgestellt:** Lint-`HardcodedText`-Pflicht übernimmt den Schutz. TODO in `detekt.yml` dokumentiert.
 
+### Architect Review for Phase B (v0.1.0/B1+B2a)
+
+Date: 2026-05-01
+Result: APPROVED
+
+Findings (alle nicht-blockierend):
+
+- `HeraTalkTheme` Dark-Scheme: `onError` ist korrekt dunkel (#601410), weil `error` selbst hell ist (#F2B8B5). User-Verdacht (in Review-Aufgabe) trifft nicht zu — Material-3-konform.
+- `HeraTalkTheme` Dark-Scheme: `errorContainer` und `onError` haben beide den Wert `RedContainerDark` (#601410). Material-3-Baseline würde `errorContainer` mittlerweise dunkler (z. B. #8C1D18) anlegen. Optisch flach in `Snackbar`-Backgrounds — aber rein kosmetisch. **Vertagt nach v1.0** (Theme-Polish, Folge der F-14-Theme-Auswahl).
+- `HeraTalkTheme` Dark-Scheme nutzt Light-Konstanten als On-Container-Werte (`onPrimaryContainer = GreenContainerLight`). Material-3-konform und spart Konstanten, mentales Modell beim Lesen ist aber holprig. Optional in v1.0: `Green/Blue/Red OnContainerDark`-Aliase einführen, die intern auf die Light-Container-Konstanten zeigen.
+- `@Suppress("HardcodedText")`-Verteilung: pro Funktion (statt file-level) — eng wie gewünscht. **OK.**
+- `:core:ui` referenziert nur `:core:model`. Dep-Regel eingehalten. **OK.**
+- String-Naming-Konvention (`common_*`, `network_quality_*`) eingehalten. **OK.**
+- KDoc auf allen `public` Membern in `:core:ui`. **OK.**
+- `detekt.yml` Suppressors angemessen (Compose-Annotated-Functions, Magic-Number-dp-Wertepool); `HardcodedStringInComposable` als TODO mit Issue-Referenz transparent. **OK.**
+- `.editorconfig` Compose-Function-Naming-Override korrekt. **OK.**
+- Detekt + Spotless auf Phase-B-Scope: clean. (2 Findings auf untracked Phase-C-Stubs sind nicht Phase-B.)
+
+Conditions: keine.
+
+Phase B ist freigegeben. Phase C kann gestartet werden — siehe aktualisierten `docs/impl-plan-v0.1.0.md §C` mit Architekt-Korrekturen (String-Quelle für `:service:lifecycle`, KDoc-Pflicht, appcompat-Dependency-Hinweis, feature → feature-Dependency-Akzeptanz für Display-Name-Wiederverwendung).
+
 ## Offene Fragen
 
 Die folgenden Punkte wurden im Rahmen des Architekt-Reviews zu Phase A identifiziert und sind für spätere Releases vorgemerkt:

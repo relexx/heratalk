@@ -125,44 +125,63 @@ Jeder Schritt ist ein eigener Commit. Reihenfolge ist verbindlich.
 - `class HeraTalkService : Service()` mit `startForeground`-Aufruf, Notification mit lokalisiertem Channel-Name.
 - `data class FeatureState(channelActive: Boolean, voxEnabled: Boolean, hardwarePttEnabled: Boolean)`.
 - `fun setFeatureState(state: FeatureState)`-Methode: implementiert die Type-Switch-Logik aus `architecture.md §11.3`. In v0.1.0 ist nur `connectedDevice` aktiv; `microphone`-Pfad enthält `TODO("v0.7.0 — VOX/Hardware-PTT")`.
-- Notification-Builder mit Strings aus `:core:ui`'s `strings.xml` (Notification-Channel-Name) bzw. `:app`'s strings (Service-Beschreibung).
+- **Strings:** `:service:lifecycle` legt **eigene** Resource-Files an unter `service/lifecycle/src/main/res/values/strings.xml` und `values-de/strings.xml` (Notification-Channel-Name, Notification-Text-Varianten "Empfang" / "VOX aktiv"). `:service:lifecycle` darf **nicht** `:core:ui` referenzieren — das wäre ein Verstoß gegen die Abhängigkeitsregel `feature → service → core` (UI ist nicht innerer als Service).
 - Service-Klasse exportiert `start(context, state)` und `stop(context)` als Companion-Object-API für saubere Aufrufe aus der Activity.
+- **Hinweis:** Der `start`-Aufruf darf gemäß `architecture.md §11.6` nur aus einer sichtbaren Activity erfolgen (Android-14+-Regel). Das wird in Phase E2 in der `MainActivity` so umgesetzt; in v0.1.0 reicht ein einfacher `try/catch` um den `startForeground`-Aufruf, mit Logger-Eintrag bei `ForegroundServiceStartNotAllowedException`.
 
 **Akzeptanz C1:** Modul kompiliert. Manueller Test in C5/Phase E: Service kann gestartet, Notification erscheint.
 
 **C2 — Service-Skelette `:service:discovery`, `:service:transport`, `:service:signaling`, `:service:media`, `:service:audio`, `:service:ptt`, `:service:relay`.**
 
 Jedes Modul:
-- `build.gradle.kts` minimal (Android-Library, Kotlin, Coroutines).
-- Eine `interface XxxEngine`-Datei mit Public API gemäß Architektur.
-- Eine `XxxEngineStub`-Klasse, die das Interface implementiert mit `TODO("vX.Y.0")`.
+
+- `build.gradle.kts` minimal: AGP-Library-Plugin, Kotlin, `explicitApi()`. Coroutines (`libs.kotlinx.coroutines.core`) **nur** dann als Dependency, wenn das Interface tatsächlich `Flow`/`StateFlow`/`suspend` verwendet — sonst weglassen.
+- `implementation(project(":core:model"))` immer dann, wenn das Interface auf `Peer`/`PeerId`/`ChannelId` referenziert.
+- Leere `src/main/AndroidManifest.xml` mit `<manifest />` (Pflicht für AGP-Library-Module ohne weiteren Manifest-Inhalt).
+- Eine `interface XxxEngine`-Datei mit Public API gemäß Architektur. **KDoc-Pflicht** auf jedem `public`-Member (Interface, Funktion, Property, Sub-Interface, Sub-Datenklasse, jedes `data class`-Konstruktor-Argument). Detekt-Regel `UndocumentedPublicProperty` greift sonst.
+- Eine `XxxEngineStub`-Klasse, die das Interface implementiert mit `TODO("vX.Y.0")` — Stub darf gerne `internal` sein, sofern in Phase D via Koin-Modul gebunden.
+- **Copyright-Header** auf jeder `.kt`-Datei (Spotless prüft).
 - Keine Tests in v0.1.0 — Stubs testen wäre Zeremonie.
 
-Reihenfolge der Anlage egal, aber alle Module sollen einzeln kompilieren. Niemals echten Code in einem Stub einbauen — nur Interface + No-op + Marker.
+**Granularität:** Jedes Service-Modul bekommt einen eigenen Commit (`feat(service:xxx): add skeleton interface and stub for vX.Y.0`). So bleibt die Historie atomar und Reviews sind einfacher.
 
-**Akzeptanz C2:** `./gradlew assembleDebug` grün mit allen Skelett-Modulen.
+**Reihenfolge der Anlage:** Egal, aber alle Module sollen einzeln kompilieren. Niemals echten Code in einem Stub einbauen — nur Interface + No-op + Marker.
+
+**Akzeptanz C2:** `./gradlew assembleDebug` grün mit allen Skelett-Modulen, `./gradlew detekt` grün (kein `UndocumentedPublic*`-Finding), `./gradlew spotlessCheck` grün.
 
 **C3 — `:feature:pairing` (Display-Name-Eingabe-Screen funktional).**
+
 - Composables: `ChannelChoiceScreen` (Tap → Display-Name-Screen), `DisplayNameScreen` (TextField mit Validierung; deaktivierter "Weiter"-Button bei leerer/whitespace-Eingabe; Live-Counter Codepoints).
 - ViewModel `PairingViewModel(identityRepository: IdentityRepository)` — schreibt nur, wenn Validierung passt.
 - QR-Scan-Screen: `QrScanScreen` als Composable-Stub mit "Coming in v0.5.0"-Hinweis (lokalisiert).
-- Strings vollständig in `values/strings.xml` und `values-de/strings.xml`.
+- Strings vollständig in `values/strings.xml` und `values-de/strings.xml` (Prefix `pairing_*`).
+- **KDoc-Pflicht** auf allen `public` Composables und auf der `PairingViewModel`-Klasse.
+- Compose-Plugin und Compose-BOM-Importe analog zu `:core:ui/build.gradle.kts` — diese Datei ist die Referenzvorlage.
 
-**Akzeptanz C3:** Display-Name lässt sich eingeben, persistiert in DataStore, taucht in Settings wieder auf (siehe C5).
+**Akzeptanz C3:** Display-Name lässt sich eingeben und in DataStore persistieren (App-Neustart-Test). Round-Trip-Test mit Settings (Display-Name in Settings sichtbar) wird erst nach C5 möglich — daher in C5 mitabgenommen.
 
 **C4 — `:feature:channel` (Skelett).**
-- `ChannelScreen` Composable mit Scaffold (Header zeigt platzhaltigen Kanal-Namen aus String-Resource, Netzwerk-Indikator zeigt `OFFLINE` als Default), Peer-Liste leer, PTT-Button deaktiviert mit Hinweis-String "Verfügbar in v0.4.0".
 
-**Akzeptanz C4:** Screen rendert.
+- `ChannelScreen` Composable mit `HeraTalkScaffold` aus `:core:ui` (Header zeigt platzhaltigen Kanal-Namen aus String-Resource, Netzwerk-Indikator zeigt `NetworkQuality.OFFLINE` als Default), Peer-Liste leer (Placeholder-Text), PTT-Button deaktiviert mit Hinweis-String "Verfügbar in v0.4.0" (lokalisiert).
+- Strings unter Prefix `channel_*` in `values/strings.xml` und `values-de/strings.xml`.
+- **KDoc-Pflicht** auf der `ChannelScreen`-Composable.
+
+**Akzeptanz C4:** Compose-Preview rendert in Light- und Dark-Mode ohne Crash; alle Texte stammen aus `stringResource(...)` (kein `HardcodedText`-Lint-Finding).
 
 **C5 — `:feature:settings` (Sprache + Display-Name + Update-Toggle funktional).**
+
 - Sortierung gemäß Entscheidung 2026-04-25: Audio (Stub) → App-Verhalten (Sprache, Theme, Update-Check, Auto-Resume) → Netzwerk (Stub) → Benachrichtigungen (Stub) → Features und Berechtigungen (Stub) → Kanal (Display-Name) → Info.
 - Sprach-Auswahl: 3-Optionen-Radio (System / Deutsch / Englisch). Auswahl ruft `AppCompatDelegate.setApplicationLocales(...)`. Persistenz in DataStore.
-- Display-Name-Eintrag öffnet `DisplayNameScreen` aus `:feature:pairing` im Edit-Modus (vorbelegt mit aktuellem Wert; ist global, nicht pro Kanal).
+- Display-Name-Eintrag öffnet `DisplayNameScreen` aus `:feature:pairing` im Edit-Modus (vorbelegt mit aktuellem Wert; ist global, nicht pro Kanal). `:feature:settings` bekommt damit eine Dependency auf `:feature:pairing` — **das ist eine feature → feature-Abhängigkeit**, die Plan-§4 (Abhängigkeitsregel `feature → service → core`) **nicht** explizit verbietet, aber auch nicht segnet. Akzeptiert für v0.1.0; falls dies in späteren Releases zu zirkulären Abhängigkeiten führt, wird `DisplayNameScreen` in `:core:ui` oder ein neues `:feature:identity-edit` ausgelagert. Architekt-TODO in `project-state.md` aufnehmen.
 - Update-Check-Toggle: persistiert Bool, **kein** tatsächlicher Netzwerkaufruf in v0.1.0 (kommt in späterem Release).
 - Theme-Toggle: persistiert Bool/Enum, wirkt aber noch nicht — Theme-Switching kommt in v1.0.
+- Auto-Resume-Toggle: persistiert Bool. Wirkung kommt mit v0.5.0 (Channel-Secret-Persistenz).
+- **Persistenz-Architektur:** Settings-Werte (außer Display-Name, der lebt in `:core:identity`) werden in v0.1.0 lokal in `:feature:settings` gegen einen modul-eigenen DataStore geschrieben. Eine ausgelagerte `:core:settings`-Komponente ist nicht im Scope von v0.1.0 — wenn sich die Settings-Persistenz später als Cross-Cutting-Concern erweist (mehrere Module brauchen den Theme-Wert), wird sie in v1.0 oder bei Bedarf in einen neuen `:core:settings`-Modul gehoben.
+- **appcompat-Dependency:** `androidx.appcompat:appcompat` muss in `libs.versions.toml` ergänzt und in `:feature:settings/build.gradle.kts` als `implementation` deklariert werden. `AppCompatDelegate.setApplicationLocales` lebt dort. Für Locale-Auswahl auf Android < 13 sind keine zusätzlichen Maßnahmen nötig — AndroidX kümmert sich um den Recreate-Pfad.
+- Strings unter Prefix `settings_*` in `values/strings.xml` und `values-de/strings.xml`.
+- **KDoc-Pflicht** auf allen `public` Composables und ViewModel-Klassen.
 
-**Akzeptanz C5:** Sprache lässt sich umschalten und wirkt sofort. Display-Name editierbar.
+**Akzeptanz C5:** Sprache lässt sich umschalten und wirkt sofort (DE/EN). Display-Name editierbar; Editierung ist Round-Trip-fest mit `:feature:pairing` (in C3 angelegter Wert erscheint in Settings, Settings-Edit überschreibt den Wert).
 
 **C6 — `:feature:direct` (Modul-Anlage ohne Inhalt).**
 - Modul anlegen, `build.gradle.kts`, leeres Package mit `package-info`-Kommentar "Direct call feature — implemented from v0.8.0".
@@ -284,6 +303,8 @@ Der Entwickler-Agent baut **nicht** in v0.1.0:
 | `AppCompatDelegate.setApplicationLocales` benötigt `appcompat`-Dependency, die wir noch nicht haben | mittel | Dependency in `app`-Modul ergänzen; alternativ AndroidX `core-ktx` reicht für 13+, mit Recreate-Fallback für ältere |
 | Foreground-Service-Typ `connectedDevice` braucht Android 14+ und sichtbare Activity beim Start | mittel | Service nur aus sichtbarer Activity starten; Fallback-Pfad mit `try/catch` für ältere Geräte; Pascal testet auf realem Gerät |
 | Display-Name-Validierung lässt Bidi-Override-Codepoints durch | niedrig in v0.1.0 (eigener Name, kein Empfang) | Sanitisierung der **Eingabe** in v0.1.0 ist optional; Sanitisierung **fremder** Namen kommt erst mit v0.2.0 (Discovery). Empfehlung: schon in `:core:identity` minimal sanitisieren (nur Bidi strippen) — wenig Aufwand, schliesst F-PRIV-04 für eigenen Namen vorab |
+| Compose-BOM/Compiler-Plugin-Mismatch in neuen `:feature:*`-Modulen | niedrig (Phase B hat den passenden BOM bereits gesetzt) | `:feature:*`-Module übernehmen die Compose-Dependency-Konfiguration **1:1** aus `:core:ui/build.gradle.kts`. Bei Build-Bruch sofort `libs.versions.toml` (Compose-BOM + Compose-Compiler-Plugin) prüfen, nicht ad-hoc Versionsnummern raten |
+| Detekt-Findings auf neuen Service-Stub-Interfaces (`UndocumentedPublicProperty` auf `data class`-Konstruktor-Argumenten) | hoch (sehr leicht zu übersehen) | Beim Schreiben von `data class XxxState(val foo: Foo)` für jede Property KDoc setzen. Detekt erzwingt das via `comments.UndocumentedPublicProperty: active: true`. Vor PR `./gradlew detekt` lokal laufen |
 
 ## 6. Übergabe und Folgeschritte
 
