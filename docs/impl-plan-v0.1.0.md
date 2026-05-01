@@ -83,7 +83,8 @@ Jeder Schritt ist ein eigener Commit. Reihenfolge ist verbindlich.
 
 **A5 — `:core:identity`.**
 - DataStore-Setup: Preferences-DataStore (kein Proto in v0.1.0 nötig — DataStore-Preferences reicht für einen einzelnen String-Key).
-- `interface IdentityRepository { val displayName: Flow<DisplayName?>; suspend fun set(name: DisplayName); suspend fun fallbackName(pk: ByteArray): DisplayName }`.
+- `interface IdentityRepository { val displayName: Flow<DisplayName?>; suspend fun setDisplayName(name: DisplayName); fun fallbackName(pk: ByteArray): DisplayName }`.
+  - `fallbackName` ist non-suspend, da deterministisch und I/O-frei.
 - Impl: `DataStoreIdentityRepository(dataStore: DataStore<Preferences>, ...)`.
 - Pure Funktion: `fallbackPeerName(pk: ByteArray): String` → `"Peer-${first8hex(pk)}"`.
 - Tests: Validierung, Persistenz mit fakem DataStore, Fallback-Generator mit bekannten Test-Vektoren.
@@ -99,13 +100,24 @@ Jeder Schritt ist ein eigener Commit. Reihenfolge ist verbindlich.
 - `core/ui/src/main/res/values/strings.xml` und `values-de/strings.xml` mit den allgemeinen Keys: `common_back`, `common_continue`, `common_cancel`, `network_quality_good/degraded/poor/offline`.
 - `android:supportsRtl="true"` wird im `:app`-Manifest gesetzt (kommt in Phase E) — hier nur als Notiz.
 
-**Akzeptanz B1:** Modul kompiliert. Compose-Preview rendert Theme.
+- Modul-Dep-Beschränkung: `:core:ui` darf nur `:core:model` referenzieren — kein Logging, kein Identity.
+- String-Naming-Konvention: Modul-Strings haben modul-spezifische Prefixe: `common_*` in `:core:ui`, `pairing_*` in `:feature:pairing`, `settings_*` in `:feature:settings`, `channel_*` in `:feature:channel`, `network_quality_*` in `:core:ui`.
 
-**B2 — Lint-Enforcement testen.**
-- Bewusst eine hartkodierte String-Verwendung in einer temporären Datei einbauen, `./gradlew lintDebug` laufen lassen — muss Build brechen. Danach wieder entfernen. Zweck: Smoketest, dass `lint.xml` greift.
-- Custom-Detekt-Rule `HardcodedStringInComposable` ist out-of-scope für v0.1.0, falls die Implementierung den Release sprengt — TODO mit Issue. Alternative: vorerst nur Lint und manuelle Disziplin.
+**Akzeptanz B1:** Modul kompiliert. Compose-Preview rendert Theme in Light- und Dark-Mode separat.
 
-**Akzeptanz B2:** Lint-Check schlägt bei hartkodierten Strings fehl. Nach Cleanup grün.
+**B2a — Lint-Smoketest (MUSS).**
+
+- Bewusst eine hartkodierte String-Verwendung in einer temporären Datei einbauen, `./gradlew lintDebug --abort-on-error` laufen lassen — muss Build brechen. Danach wieder entfernen. Zweck: Smoketest, dass `lint.xml` greift.
+- `lintDebug` mit `--abort-on-error` wird in CI als Pflicht-Check konfiguriert.
+
+**Akzeptanz B2a:** Lint-Check schlägt bei hartkodierten Strings fehl. Nach Cleanup grün.
+
+**B2b — Custom-Detekt-Rule `HardcodedStringInComposable` (KANN).**
+
+- Implementierung nur, falls der Aufwand unter 4 Stunden bleibt. Ansonsten explizit nach v0.2.0 vertagen und TODO mit Issue anlegen.
+- Alternative bis dahin: `lintDebug`-Pflicht (B2a) und manuelle Code-Review-Disziplin.
+
+**Akzeptanz B2b:** Detekt-Rule erkennt hartkodierte Strings in Composables. Falls vertagt: Issue angelegt, TODO in `detekt.yml`.
 
 ### Phase C — Service- und Feature-Skelette
 
