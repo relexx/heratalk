@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (c) 2026 relexx. BSD 3-Clause License.
+
+    Strings for the :feature:channel module.
+
+    Naming convention (impl-plan-v0.1.0.md §B1):
+      - channel_* : everything that lives on the channel main screen.
+-->
+<resources>
+    <!-- Top-bar title shown until a channel name is paired. -->
+    <string name="channel_title_placeholder">Channel</string>
+
+    <!-- Empty-roster placeholder shown while no peers are visible. -->
+    <string name="channel_empty_roster">No peers nearby — peers appear here once discovery is implemented in v0.2.0.</string>
+
+    <!-- Section header above the peer list. -->
+    <string name="channel_peers_section">Peers</string>
+
+    <!-- Disabled PTT button label and supporting hint. -->
+    <string name="channel_ptt_label">Push to talk</string>
+    <string name="channel_ptt_hint_disabled">Available in v0.4.0.</string>
+</resources>

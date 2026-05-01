@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (c) 2026 relexx. BSD 3-Clause License.
+
+    Deutsche Übersetzungen für das Modul :feature:channel.
+    Pflege durch den Documenter-Agent. Glossar siehe .claude/agents/documenter.md.
+-->
+<resources>
+    <string name="channel_title_placeholder">Kanal</string>
+
+    <string name="channel_empty_roster">Keine Peers in der Nähe — Peers erscheinen hier, sobald Discovery in v0.2.0 implementiert ist.</string>
+
+    <string name="channel_peers_section">Peers</string>
+
+    <string name="channel_ptt_label">Drücken zum Sprechen</string>
+    <string name="channel_ptt_hint_disabled">Verfügbar in v0.4.0.</string>
+</resources>
