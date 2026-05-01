@@ -1,4 +1,5 @@
 // Copyright (c) 2026 relexx. BSD 3-Clause License.
+// See LICENSE file in the project root for full license information.
 package de.relexx.heratalk.core.logging
 
 import org.junit.jupiter.api.Test
@@ -18,7 +19,6 @@ import org.junit.jupiter.api.Test
  * A TODO is left for an instrumentation test that exercises real logcat output.
  */
 class AndroidLogcatLoggerTest {
-
     // TODO(developer): add src/androidTest instrumentation test to verify real logcat
     //   output once a device/emulator target is available in CI (Phase F).
 

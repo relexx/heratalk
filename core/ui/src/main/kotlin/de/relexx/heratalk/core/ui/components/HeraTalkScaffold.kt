@@ -1,4 +1,5 @@
 // Copyright (c) 2026 relexx. BSD 3-Clause License.
+// See LICENSE file in the project root for full license information.
 package de.relexx.heratalk.core.ui.components
 
 import androidx.compose.foundation.layout.Box
@@ -59,10 +60,11 @@ public fun HeraTalkScaffold(
                         modifier = Modifier.padding(end = 12.dp),
                     )
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                ),
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    ),
             )
         },
         content = { innerPadding -> content(innerPadding) },

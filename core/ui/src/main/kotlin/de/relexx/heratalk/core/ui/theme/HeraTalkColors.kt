@@ -1,4 +1,5 @@
 // Copyright (c) 2026 relexx. BSD 3-Clause License.
+// See LICENSE file in the project root for full license information.
 package de.relexx.heratalk.core.ui.theme
 
 import androidx.compose.ui.graphics.Color
@@ -17,7 +18,6 @@ import androidx.compose.ui.graphics.Color
  * ColorScheme.
  */
 public object HeraTalkColors {
-    // Green — primary / "active"
     /** Primary accent in light mode (active / available). */
     public val GreenPrimaryLight: Color = Color(0xFF1B7F3A)
 
@@ -30,7 +30,6 @@ public object HeraTalkColors {
     /** Container behind primary actions in dark mode. */
     public val GreenContainerDark: Color = Color(0xFF0E4220)
 
-    // Blue — secondary / "direct call"
     /** Secondary accent in light mode (direct call / private). */
     public val BlueSecondaryLight: Color = Color(0xFF1A5FB4)
 
@@ -43,14 +42,12 @@ public object HeraTalkColors {
     /** Container behind secondary actions in dark mode. */
     public val BlueContainerDark: Color = Color(0xFF0D3260)
 
-    // Yellow — warning / "degraded"
     /** Warning hue in light mode (degraded network quality). */
     public val YellowWarningLight: Color = Color(0xFFB58900)
 
     /** Warning hue in dark mode. */
     public val YellowWarningDark: Color = Color(0xFFE5C45A)
 
-    // Red — error / "hang up / poor / offline"
     /** Error hue in light mode (faults / poor network / hang up). */
     public val RedErrorLight: Color = Color(0xFFB3261E)
 
@@ -63,7 +60,6 @@ public object HeraTalkColors {
     /** Container behind errors in dark mode. */
     public val RedContainerDark: Color = Color(0xFF601410)
 
-    // Neutral — surface / background
     /** Surface in light mode. */
     public val SurfaceLight: Color = Color(0xFFFDFDFC)
 
@@ -78,4 +74,19 @@ public object HeraTalkColors {
 
     /** Neutral grey used for "offline" peer indicator — same value in both modes. */
     public val OfflineGrey: Color = Color(0xFF9E9E9E)
+
+    /** On-primary-container text/icon colour in light mode. */
+    public val GreenOnPrimaryContainerLight: Color = Color(0xFF002106)
+
+    /** On-secondary-container text/icon colour in light mode. */
+    public val BlueOnSecondaryContainerLight: Color = Color(0xFF001A41)
+
+    /** On-error-container text/icon colour in light mode. */
+    public val RedOnErrorContainerLight: Color = Color(0xFF410002)
+
+    /** On-primary text/icon colour in dark mode. */
+    public val GreenOnPrimaryDark: Color = Color(0xFF003912)
+
+    /** On-secondary text/icon colour in dark mode. */
+    public val BlueOnSecondaryDark: Color = Color(0xFF002F65)
 }

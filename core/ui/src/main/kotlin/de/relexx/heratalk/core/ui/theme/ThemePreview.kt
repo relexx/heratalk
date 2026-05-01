@@ -1,4 +1,5 @@
 // Copyright (c) 2026 relexx. BSD 3-Clause License.
+// See LICENSE file in the project root for full license information.
 package de.relexx.heratalk.core.ui.theme
 
 import androidx.compose.foundation.background
@@ -33,16 +34,18 @@ import androidx.compose.ui.unit.dp
 private fun ColorSwatch(label: String, color: Color, onColor: Color) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 2.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 2.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(RoundedCornerShape(6.dp))
-                .background(color),
+            modifier =
+                Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(color),
             contentAlignment = Alignment.Center,
         ) {
             Text(text = "Aa", color = onColor, style = MaterialTheme.typography.labelSmall)

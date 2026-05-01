@@ -1,4 +1,5 @@
 // Copyright (c) 2026 relexx. BSD 3-Clause License.
+// See LICENSE file in the project root for full license information.
 package de.relexx.heratalk.core.model
 
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -6,7 +7,6 @@ import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 
 class ChannelIdTest {
-
     @Test
     fun `constructor throws IllegalArgumentException when value is empty`() {
         assertThrows(IllegalArgumentException::class.java) {

@@ -1,4 +1,5 @@
 // Copyright (c) 2026 relexx. BSD 3-Clause License.
+// See LICENSE file in the project root for full license information.
 package de.relexx.heratalk.core.logging
 
 /**
@@ -12,16 +13,26 @@ package de.relexx.heratalk.core.logging
 public class CompositeLogger(
     private val loggers: List<Logger>,
 ) : Logger {
-
-    override fun d(tag: String, msg: String) {
+    override fun d(
+        tag: String,
+        msg: String,
+    ) {
         loggers.forEach { it.d(tag, msg) }
     }
 
-    override fun w(tag: String, msg: String, throwable: Throwable?) {
+    override fun w(
+        tag: String,
+        msg: String,
+        throwable: Throwable?,
+    ) {
         loggers.forEach { it.w(tag, msg, throwable) }
     }
 
-    override fun e(tag: String, msg: String, throwable: Throwable?) {
+    override fun e(
+        tag: String,
+        msg: String,
+        throwable: Throwable?,
+    ) {
         loggers.forEach { it.e(tag, msg, throwable) }
     }
 }

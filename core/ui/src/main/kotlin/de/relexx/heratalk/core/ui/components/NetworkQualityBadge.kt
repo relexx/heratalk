@@ -1,4 +1,5 @@
 // Copyright (c) 2026 relexx. BSD 3-Clause License.
+// See LICENSE file in the project root for full license information.
 package de.relexx.heratalk.core.ui.components
 
 import androidx.compose.foundation.background
@@ -40,32 +41,36 @@ public fun NetworkQualityBadge(
     modifier: Modifier = Modifier,
 ) {
     val extra = LocalHeraTalkExtraColors.current
-    val dotColor: Color = when (quality) {
-        NetworkQuality.GOOD -> MaterialTheme.colorScheme.primary
-        NetworkQuality.DEGRADED -> extra.warning
-        NetworkQuality.POOR -> MaterialTheme.colorScheme.error
-        NetworkQuality.OFFLINE -> extra.offline
-    }
-    val labelRes = when (quality) {
-        NetworkQuality.GOOD -> R.string.network_quality_good
-        NetworkQuality.DEGRADED -> R.string.network_quality_degraded
-        NetworkQuality.POOR -> R.string.network_quality_poor
-        NetworkQuality.OFFLINE -> R.string.network_quality_offline
-    }
+    val dotColor: Color =
+        when (quality) {
+            NetworkQuality.GOOD -> MaterialTheme.colorScheme.primary
+            NetworkQuality.DEGRADED -> extra.warning
+            NetworkQuality.POOR -> MaterialTheme.colorScheme.error
+            NetworkQuality.OFFLINE -> extra.offline
+        }
+    val labelRes =
+        when (quality) {
+            NetworkQuality.GOOD -> R.string.network_quality_good
+            NetworkQuality.DEGRADED -> R.string.network_quality_degraded
+            NetworkQuality.POOR -> R.string.network_quality_poor
+            NetworkQuality.OFFLINE -> R.string.network_quality_offline
+        }
 
     Row(
-        modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(horizontal = 10.dp, vertical = 4.dp),
+        modifier =
+            modifier
+                .clip(RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .padding(horizontal = 10.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Box(
-            modifier = Modifier
-                .size(8.dp)
-                .clip(CircleShape)
-                .background(dotColor),
+            modifier =
+                Modifier
+                    .size(8.dp)
+                    .clip(CircleShape)
+                    .background(dotColor),
         )
         Text(
             text = stringResource(labelRes),

@@ -1,4 +1,5 @@
 // Copyright (c) 2026 relexx. BSD 3-Clause License.
+// See LICENSE file in the project root for full license information.
 package de.relexx.heratalk.core.identity
 
 import androidx.datastore.core.DataStore
@@ -28,44 +29,45 @@ import org.junit.jupiter.api.Test
  * is lossless.
  */
 class IdentityRepositoryPropertyTest {
-
     @Test
-    fun `round-trip through DataStore is lossless for every valid DisplayName`() = runTest {
-        // Arb for valid DisplayName values:
-        // - length 1..16 characters (stays well within the 32-code-point limit)
-        // - at least one non-whitespace character
-        // - no Bidi-override code points
-        val validNameArb: Arb<DisplayName> = Arb
-            .string(minSize = 1, maxSize = 16)
-            .filter { s ->
-                s.isNotBlank() &&
-                    s.codePointCount(0, s.length) <= 32 &&
-                    !containsBidiOverride(s)
+    fun `round-trip through DataStore is lossless for every valid DisplayName`() =
+        runTest {
+            // Arb for valid DisplayName values:
+            // - length 1..16 characters (stays well within the 32-code-point limit)
+            // - at least one non-whitespace character
+            // - no Bidi-override code points
+            val validNameArb: Arb<DisplayName> =
+                Arb
+                    .string(minSize = 1, maxSize = 16)
+                    .filter { s ->
+                        s.isNotBlank() &&
+                            s.codePointCount(0, s.length) <= 32 &&
+                            !containsBidiOverride(s)
+                    }.map { s -> DisplayName(s) }
+
+            checkAll(100, validNameArb) { name ->
+                val fakeStore = PropertyFakeDataStore()
+                val repo = DataStoreIdentityRepository(fakeStore)
+
+                repo.setDisplayName(name)
+
+                val retrieved = repo.displayName.first()
+                retrieved shouldBe name
             }
-            .map { s -> DisplayName(s) }
-
-        checkAll(100, validNameArb) { name ->
-            val fakeStore = PropertyFakeDataStore()
-            val repo = DataStoreIdentityRepository(fakeStore)
-
-            repo.setDisplayName(name)
-
-            val retrieved = repo.displayName.first()
-            retrieved shouldBe name
         }
-    }
 }
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-private val BIDI_OVERRIDE_CODE_POINTS: Set<Int> = buildSet {
-    addAll(0x202A..0x202E)
-    addAll(0x2066..0x2069)
-    add(0x200E)
-    add(0x200F)
-}
+private val BIDI_OVERRIDE_CODE_POINTS: Set<Int> =
+    buildSet {
+        addAll(0x202A..0x202E)
+        addAll(0x2066..0x2069)
+        add(0x200E)
+        add(0x200F)
+    }
 
 private fun containsBidiOverride(s: String): Boolean {
     var i = 0
@@ -79,7 +81,6 @@ private fun containsBidiOverride(s: String): Boolean {
 
 /** Minimal in-memory fake for [DataStore]<[Preferences]> used in property tests. */
 private class PropertyFakeDataStore : DataStore<Preferences> {
-
     private val state = MutableStateFlow(emptyPreferences())
 
     override val data: Flow<Preferences> = state

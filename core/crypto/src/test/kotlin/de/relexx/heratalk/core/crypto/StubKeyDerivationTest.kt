@@ -1,4 +1,5 @@
 // Copyright (c) 2026 relexx. BSD 3-Clause License.
+// See LICENSE file in the project root for full license information.
 package de.relexx.heratalk.core.crypto
 
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -9,7 +10,6 @@ import org.junit.jupiter.api.Test
  * call so that any accidental wiring before v0.5.0 fails loudly.
  */
 class StubKeyDerivationTest {
-
     private val sharedSecret = ByteArray(32)
     private val channelSecret = ByteArray(32)
 

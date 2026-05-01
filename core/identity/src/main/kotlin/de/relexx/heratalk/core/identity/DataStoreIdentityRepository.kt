@@ -1,4 +1,5 @@
 // Copyright (c) 2026 relexx. BSD 3-Clause License.
+// See LICENSE file in the project root for full license information.
 package de.relexx.heratalk.core.identity
 
 import androidx.datastore.core.DataStore
@@ -23,7 +24,6 @@ import kotlinx.coroutines.flow.map
 public class DataStoreIdentityRepository(
     private val dataStore: DataStore<Preferences>,
 ) : IdentityRepository {
-
     internal companion object {
         /**
          * Preferences key used to persist the display name.
@@ -45,19 +45,20 @@ public class DataStoreIdentityRepository(
      * values are silently dropped — the caller is notified via `null` rather than
      * an exception, keeping the UI in a recoverable "no name set" state.
      */
-    override val displayName: Flow<DisplayName?> = dataStore.data.map { preferences ->
-        val raw = preferences[DISPLAY_NAME_KEY]
-        if (raw == null) {
-            null
-        } else {
-            try {
-                DisplayName(raw)
-            } catch (_: IllegalArgumentException) {
-                // Invalid persisted value — treat as "not set" rather than crashing.
+    override val displayName: Flow<DisplayName?> =
+        dataStore.data.map { preferences ->
+            val raw = preferences[DISPLAY_NAME_KEY]
+            if (raw == null) {
                 null
+            } else {
+                try {
+                    DisplayName(raw)
+                } catch (_: IllegalArgumentException) {
+                    // Invalid persisted value — treat as "not set" rather than crashing.
+                    null
+                }
             }
         }
-    }
 
     /**
      * Persists [name] in DataStore, replacing any previously stored value.

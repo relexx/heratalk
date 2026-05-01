@@ -1,4 +1,5 @@
 // Copyright (c) 2026 relexx. BSD 3-Clause License.
+// See LICENSE file in the project root for full license information.
 package de.relexx.heratalk.core.crypto
 
 /**
@@ -27,7 +28,6 @@ package de.relexx.heratalk.core.crypto
  * open.
  */
 public interface KeyDerivation {
-
     /**
      * Derives the 32-byte Noise PSK from the QR-code channel secret.
      *
@@ -109,16 +109,12 @@ public enum class KeyDirection {
  * declare their dependency on the [KeyDerivation] interface and wire DI.
  */
 public class StubKeyDerivation : KeyDerivation {
-
-    override fun derivePhase1Psk(channelSecret: ByteArray): ByteArray {
+    override fun derivePhase1Psk(channelSecret: ByteArray): ByteArray =
         throw NotImplementedError("KeyDerivation.derivePhase1Psk is implemented in v0.5.0")
-    }
 
     override fun deriveSrtpKey(
         sharedSecret: ByteArray,
         streamType: StreamType,
         direction: KeyDirection,
-    ): ByteArray {
-        throw NotImplementedError("KeyDerivation.deriveSrtpKey is implemented in v0.5.0")
-    }
+    ): ByteArray = throw NotImplementedError("KeyDerivation.deriveSrtpKey is implemented in v0.5.0")
 }

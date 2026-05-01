@@ -1,4 +1,5 @@
 // Copyright (c) 2026 relexx. BSD 3-Clause License.
+// See LICENSE file in the project root for full license information.
 package de.relexx.heratalk.core.crypto
 
 /**
@@ -35,7 +36,6 @@ package de.relexx.heratalk.core.crypto
  * pure JVM.
  */
 public interface Aead {
-
     /**
      * Encrypts [plaintext] under [key] and authenticates [associatedData].
      *
@@ -97,22 +97,17 @@ public interface Aead {
  * surfaces accidental wiring before the real implementation lands.
  */
 public class StubAead : Aead {
-
     override fun seal(
         key: ByteArray,
         nonce: ByteArray,
         plaintext: ByteArray,
         associatedData: ByteArray,
-    ): ByteArray {
-        throw NotImplementedError("Aead.seal is implemented in v0.5.0")
-    }
+    ): ByteArray = throw NotImplementedError("Aead.seal is implemented in v0.5.0")
 
     override fun open(
         key: ByteArray,
         nonce: ByteArray,
         ciphertext: ByteArray,
         associatedData: ByteArray,
-    ): ByteArray? {
-        throw NotImplementedError("Aead.open is implemented in v0.5.0")
-    }
+    ): ByteArray? = throw NotImplementedError("Aead.open is implemented in v0.5.0")
 }

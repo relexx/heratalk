@@ -1,4 +1,5 @@
 // Copyright (c) 2026 relexx. BSD 3-Clause License.
+// See LICENSE file in the project root for full license information.
 package de.relexx.heratalk.core.identity
 
 import androidx.datastore.core.DataStore
@@ -20,14 +21,12 @@ import org.junit.jupiter.api.Test
  * keeping the test purely on the JVM (see ADR-0004 §"JVM-Tests gegen das Interface").
  */
 class DataStoreIdentityRepositoryTest {
-
     // ---------------------------------------------------------------------------
     // Fake DataStore — no Android context, no file I/O
     // ---------------------------------------------------------------------------
 
     /** Minimal in-memory fake for [DataStore]<[Preferences]>. */
     private class FakeDataStore : DataStore<Preferences> {
-
         private val state = MutableStateFlow(emptyPreferences())
 
         override val data: Flow<Preferences> = state
@@ -51,75 +50,80 @@ class DataStoreIdentityRepositoryTest {
     // ---------------------------------------------------------------------------
 
     @Test
-    fun `displayName emits null when nothing has been set`() = runTest {
-        val repo = createRepository()
+    fun `displayName emits null when nothing has been set`() =
+        runTest {
+            val repo = createRepository()
 
-        repo.displayName.test {
-            assertNull(awaitItem())
-            cancelAndIgnoreRemainingEvents()
+            repo.displayName.test {
+                assertNull(awaitItem())
+                cancelAndIgnoreRemainingEvents()
+            }
         }
-    }
 
     @Test
-    fun `displayName emits the name after setDisplayName is called`() = runTest {
-        val repo = createRepository()
-        val expected = DisplayName("Alice")
+    fun `displayName emits the name after setDisplayName is called`() =
+        runTest {
+            val repo = createRepository()
+            val expected = DisplayName("Alice")
 
-        repo.displayName.test {
-            assertNull(awaitItem()) // initial null
-            repo.setDisplayName(expected)
-            assertEquals(expected, awaitItem())
-            cancelAndIgnoreRemainingEvents()
+            repo.displayName.test {
+                assertNull(awaitItem()) // initial null
+                repo.setDisplayName(expected)
+                assertEquals(expected, awaitItem())
+                cancelAndIgnoreRemainingEvents()
+            }
         }
-    }
 
     @Test
-    fun `displayName reflects the latest name after multiple setDisplayName calls`() = runTest {
-        val repo = createRepository()
+    fun `displayName reflects the latest name after multiple setDisplayName calls`() =
+        runTest {
+            val repo = createRepository()
 
-        repo.displayName.test {
-            assertNull(awaitItem())
-            repo.setDisplayName(DisplayName("Alice"))
-            assertEquals(DisplayName("Alice"), awaitItem())
-            repo.setDisplayName(DisplayName("Bob"))
-            assertEquals(DisplayName("Bob"), awaitItem())
-            cancelAndIgnoreRemainingEvents()
+            repo.displayName.test {
+                assertNull(awaitItem())
+                repo.setDisplayName(DisplayName("Alice"))
+                assertEquals(DisplayName("Alice"), awaitItem())
+                repo.setDisplayName(DisplayName("Bob"))
+                assertEquals(DisplayName("Bob"), awaitItem())
+                cancelAndIgnoreRemainingEvents()
+            }
         }
-    }
-
-    @Test
-    fun `displayName emits null when DataStore contains an empty string`() = runTest {
-        // Pre-populate the fake store with an invalid (empty) string to simulate
-        // a corrupt or down-migrated store entry.
-        val fakeStore = FakeDataStore()
-        fakeStore.updateData { prefs ->
-            val mutable = prefs.toMutablePreferences()
-            mutable[DataStoreIdentityRepository.DISPLAY_NAME_KEY] = ""
-            mutable
-        }
-        val repo = createRepository(fakeStore)
-
-        repo.displayName.test {
-            assertNull(awaitItem())
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
 
     @Test
-    fun `displayName emits null when DataStore contains a whitespace-only string`() = runTest {
-        val fakeStore = FakeDataStore()
-        fakeStore.updateData { prefs ->
-            val mutable = prefs.toMutablePreferences()
-            mutable[DataStoreIdentityRepository.DISPLAY_NAME_KEY] = "   "
-            mutable
-        }
-        val repo = createRepository(fakeStore)
+    fun `displayName emits null when DataStore contains an empty string`() =
+        runTest {
+            // Pre-populate the fake store with an invalid (empty) string to simulate
+            // a corrupt or down-migrated store entry.
+            val fakeStore = FakeDataStore()
+            fakeStore.updateData { prefs ->
+                val mutable = prefs.toMutablePreferences()
+                mutable[DataStoreIdentityRepository.DISPLAY_NAME_KEY] = ""
+                mutable
+            }
+            val repo = createRepository(fakeStore)
 
-        repo.displayName.test {
-            assertNull(awaitItem())
-            cancelAndIgnoreRemainingEvents()
+            repo.displayName.test {
+                assertNull(awaitItem())
+                cancelAndIgnoreRemainingEvents()
+            }
         }
-    }
+
+    @Test
+    fun `displayName emits null when DataStore contains a whitespace-only string`() =
+        runTest {
+            val fakeStore = FakeDataStore()
+            fakeStore.updateData { prefs ->
+                val mutable = prefs.toMutablePreferences()
+                mutable[DataStoreIdentityRepository.DISPLAY_NAME_KEY] = "   "
+                mutable
+            }
+            val repo = createRepository(fakeStore)
+
+            repo.displayName.test {
+                assertNull(awaitItem())
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
 
     // ---------------------------------------------------------------------------
     // Tests: fallbackName

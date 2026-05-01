@@ -26,6 +26,7 @@ comments:
   UndocumentedPublicClass:
     active: true
     excludes: ['**/test/**', '**/androidTest/**']
+    searchInInnerObject: false
   UndocumentedPublicFunction:
     active: true
     excludes: ['**/test/**', '**/androidTest/**']
@@ -63,19 +64,12 @@ exceptions:
       - InterruptedException
       - NumberFormatException
 
-formatting:
-  active: true
-  android: true
-  autoCorrect: false
-  MaxLineLength:
-    active: true
-    maxLineLength: 120
-
 naming:
   active: true
   FunctionNaming:
     active: true
     excludes: ['**/test/**', '**/androidTest/**']
+    ignoreAnnotated: ['Composable', 'Preview']
   VariableNaming:
     active: true
 
@@ -84,17 +78,23 @@ performance:
 
 potential-bugs:
   active: true
-  AvoidReferenceToMutableStateFlow:
-    active: true
 
 style:
   active: true
   MagicNumber:
     active: true
     ignoreNumbers: ['-1', '0', '1', '2', '3', '4', '8', '16', '32', '100', '1000']
-    ignoreAnnotated: ['Preview']
+    ignoreAnnotated: ['Preview', 'Composable']
+    ignorePropertyDeclaration: true
+  MaxLineLength:
+    active: true
+    maxLineLength: 120
+    excludes: ['**/test/**', '**/androidTest/**']
   UnusedImports:
     active: true
+  UnusedPrivateMember:
+    active: true
+    ignoreAnnotated: ['Preview', 'Composable']
   WildcardImport:
     active: true
 

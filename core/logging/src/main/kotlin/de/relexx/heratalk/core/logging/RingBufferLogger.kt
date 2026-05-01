@@ -1,4 +1,5 @@
 // Copyright (c) 2026 relexx. BSD 3-Clause License.
+// See LICENSE file in the project root for full license information.
 package de.relexx.heratalk.core.logging
 
 import kotlinx.coroutines.channels.BufferOverflow
@@ -23,7 +24,6 @@ import kotlinx.coroutines.flow.asSharedFlow
  * Note: `GlobalScope` is explicitly not used here (see `.claude/rules.md` Rule 19).
  */
 public class RingBufferLogger : Logger {
-
     public companion object {
         /** Maximum number of log entries retained in the ring buffer. */
         public const val MAX_ENTRIES: Int = 1000
@@ -32,35 +32,53 @@ public class RingBufferLogger : Logger {
     // MutableSharedFlow with extraBufferCapacity = MAX_ENTRIES and DROP_OLDEST overflow
     // models the ring-buffer semantic: when the buffer is full, the oldest entry is
     // silently dropped and the newest entry is accepted.
-    private val _entries: MutableSharedFlow<LogEntry> = MutableSharedFlow(
-        replay = 0,
-        extraBufferCapacity = MAX_ENTRIES,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST,
-    )
+    private val _entries: MutableSharedFlow<LogEntry> =
+        MutableSharedFlow(
+            replay = 0,
+            extraBufferCapacity = MAX_ENTRIES,
+            onBufferOverflow = BufferOverflow.DROP_OLDEST,
+        )
 
     /** Emits each [LogEntry] as it is produced. No replay of historical entries. */
     public val entries: Flow<LogEntry> = _entries.asSharedFlow()
 
-    override fun d(tag: String, msg: String) {
+    override fun d(
+        tag: String,
+        msg: String,
+    ) {
         emit(LogLevel.DEBUG, tag, msg, null)
     }
 
-    override fun w(tag: String, msg: String, throwable: Throwable?) {
+    override fun w(
+        tag: String,
+        msg: String,
+        throwable: Throwable?,
+    ) {
         emit(LogLevel.WARN, tag, msg, throwable)
     }
 
-    override fun e(tag: String, msg: String, throwable: Throwable?) {
+    override fun e(
+        tag: String,
+        msg: String,
+        throwable: Throwable?,
+    ) {
         emit(LogLevel.ERROR, tag, msg, throwable)
     }
 
-    private fun emit(level: LogLevel, tag: String, msg: String, throwable: Throwable?) {
-        val entry = LogEntry(
-            level = level,
-            tag = tag,
-            msg = msg,
-            throwable = throwable,
-            timestamp = System.currentTimeMillis(),
-        )
+    private fun emit(
+        level: LogLevel,
+        tag: String,
+        msg: String,
+        throwable: Throwable?,
+    ) {
+        val entry =
+            LogEntry(
+                level = level,
+                tag = tag,
+                msg = msg,
+                throwable = throwable,
+                timestamp = System.currentTimeMillis(),
+            )
         // tryEmit never fails here: BufferOverflow.DROP_OLDEST ensures there is always space.
         _entries.tryEmit(entry)
     }

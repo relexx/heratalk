@@ -17,3 +17,7 @@ trim_trailing_whitespace = false
 
 [Makefile]
 indent_style = tab
+
+[*.kt]
+# Compose @Preview and @Composable functions use PascalCase by convention.
+ktlint_function_naming_ignore_when_annotated_with = Composable,Preview

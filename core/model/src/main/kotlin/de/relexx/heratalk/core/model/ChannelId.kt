@@ -1,4 +1,5 @@
 // Copyright (c) 2026 relexx. BSD 3-Clause License.
+// See LICENSE file in the project root for full license information.
 package de.relexx.heratalk.core.model
 
 /**
@@ -15,8 +16,9 @@ package de.relexx.heratalk.core.model
  *   or contains characters outside the allowed set `[a-z0-9-]`.
  */
 @JvmInline
-public value class ChannelId(public val value: String) {
-
+public value class ChannelId(
+    public val value: String,
+) {
     init {
         require(value.isNotEmpty()) { "ChannelId must not be empty" }
         require(value.length <= 32) { "ChannelId must not exceed 32 characters, was ${value.length}" }

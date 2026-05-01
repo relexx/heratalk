@@ -1,4 +1,5 @@
 // Copyright (c) 2026 relexx. BSD 3-Clause License.
+// See LICENSE file in the project root for full license information.
 package de.relexx.heratalk.core.identity
 
 import de.relexx.heratalk.core.model.DisplayName
@@ -15,7 +16,6 @@ import kotlinx.coroutines.flow.Flow
  * display purposes should fall back to [fallbackName].
  */
 public interface IdentityRepository {
-
     /**
      * A stream of the current [DisplayName] for the local peer.
      *
