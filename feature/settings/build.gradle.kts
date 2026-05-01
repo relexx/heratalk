@@ -49,6 +49,11 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.koin.compose.viewmodel)
     implementation(libs.androidx.datastore)
+    // appcompat hosts AppCompatDelegate.setApplicationLocales(...) which is the
+    // canonical AndroidX entry point for runtime locale switching across all
+    // supported API levels (impl-plan-v0.1.0.md §C5).
+    implementation(libs.androidx.appcompat)
+    implementation(libs.kotlinx.coroutines.android)
 
     debugImplementation(libs.compose.ui.tooling)
 }
