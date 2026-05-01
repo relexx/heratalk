@@ -31,7 +31,7 @@ Legende: 📋 geplant · 🏗 in Arbeit · ✅ abgeschlossen · ⏸ pausiert
 
 ## v0.1.0 — Grundgerüst
 
-**Status:** 🏗 in Arbeit (Kick-off 2026-04-30; Phase A abgeschlossen 2026-05-01).
+**Status:** 🏗 in Arbeit (Kick-off 2026-04-30; Phase A abgeschlossen 2026-05-01; Phase B abgeschlossen 2026-05-01).
 
 **Implementierte Module (Phase A):**
 
@@ -42,7 +42,14 @@ Legende: 📋 geplant · 🏗 in Arbeit · ✅ abgeschlossen · ⏸ pausiert
 | `:core:crypto` | A4 | `KeyDerivation`- und `Aead`-Interfaces als Skelett; Impls werfen `NotImplementedError` mit Release-Marker; an ADR-0002-Phasen ausgerichtet |
 | `:core:identity` | A5 | `IdentityRepository`-Interface, `DataStoreIdentityRepository`-Impl, `fallbackPeerName`; JUnit-5- und Kotest-Property-Tests grün |
 
-**Noch ausstehend (Phase B–F):** `:core:ui`, Service-Skelette, Feature-Skelette, Koin-DI-Graph, `:app`-Einstiegspunkt, CI-Workflows, Doku-Sync, Geräte-Test.
+**Implementierte Module (Phase B):**
+
+| Modul          | Phase | Inhalt                                                                                                                                                                                                                                                                             |
+|----------------|-------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `:core:ui`     | B1    | `HeraTalkTheme` (light + dark), `HeraTalkColors` (Ampel-Farbtokens), `HeraTalkExtraColors` (warning/directCall/offline via `CompositionLocal`), `HeraTalkScaffold`, `NetworkQualityBadge`, `SectionHeader`; EN+DE Strings (`common_*`, `network_quality_*`); Compose-Previews (light/dark) |
+| Lint-Smoketest | B2a   | `HardcodedText` + `MissingTranslation` als Error in `lint.xml` und in CI erzwungen; detekt + spotless grün                                                                                                                                                                         |
+
+**Noch ausstehend (Phase C–F):** Service-Skelette, Feature-Skelette, Koin-DI-Graph, `:app`-Einstiegspunkt, CI-Workflows, Doku-Sync, Geräte-Test.
 
 **Ziel:** Kompilierbares App-Projekt mit allen Berechtigungen, UI-Gerüst und vollständiger Projektinfrastruktur. Noch kein Netzwerk, noch kein Audio.
 

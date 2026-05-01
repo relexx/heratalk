@@ -2,15 +2,15 @@
 
 > **Lebendes Dokument**, gepflegt vom Orchestrator-Agent und ergänzt vom Dokumentierer. Enthält den aktuellen Stand, alle getroffenen Entscheidungen und offene Risiken. Bei jedem PR, der Architektur oder Release-Status berührt, wird dieses Dokument mit aktualisiert.
 
-Stand: Release v0.1.0 (Grundgerüst) — Branch `release/v0.1.0`, Phase A (A1–A5) vollständig abgeschlossen (2026-05-01). Nächster Schritt: Phase B (`:core:ui`, Lint-Enforcement-Smoketest).
+Stand: Release v0.1.0 (Grundgerüst) — Branch `release/v0.1.0`, Phase A (A1–A5) und Phase B (B1, B2a) vollständig abgeschlossen (2026-05-01). B2b bewusst zurückgestellt — Lint-HardcodedText-Pflicht (B2a) deckt den Schutz ab. Nächster Schritt: Phase C (Service- und Feature-Skelette).
 
 ## Aktueller Release
 
-**In Arbeit:** v0.1.0 — Grundgerüst (Kick-off 2026-04-30, Phase A vollständig abgeschlossen 2026-05-01)
+**In Arbeit:** v0.1.0 — Grundgerüst (Kick-off 2026-04-30, Phase A vollständig abgeschlossen 2026-05-01, Phase B vollständig abgeschlossen 2026-05-01)
 **Nächster geplanter Release:** v0.2.0 — PoC Paketversand
 **Letzter abgeschlossener Release:** (noch keiner)
 **Aktiver Branch:** `release/v0.1.0`
-**Nächster Schritt:** Phase B — Entwickler-Agent implementiert B1 (`:core:ui`: Material-3-Theme, gemeinsame Composables, Strings) und B2 (Lint-Enforcement-Smoketest).
+**Nächster Schritt:** Phase C — Service- und Feature-Skelette (C1: `:service:lifecycle`, C2: restliche Service-Skelette, C3–C6: Feature-Skelette).
 
 ## Fortschritt v0.1.0 — Phasen-Tracking
 
@@ -21,8 +21,9 @@ Stand: Release v0.1.0 (Grundgerüst) — Branch `release/v0.1.0`, Phase A (A1–
 | A3 | `:core:logging` (Logger-Interface, AndroidLogcatLogger, RingBufferLogger, CompositeLogger) | ✅ abgeschlossen |
 | A4 | `:core:crypto` (Skeleton, Type-Stubs mit `TODO("v0.5.0/v0.6.0")`) | ✅ abgeschlossen |
 | A5 | `:core:identity` (DataStore, `IdentityRepository`, Validierung) | ✅ abgeschlossen |
-| B1 | `:core:ui` (Material-3-Theme, gemeinsame Composables, Strings) | 📋 geplant |
-| B2 | Lint-Enforcement-Smoketest | 📋 geplant |
+| B1 | `:core:ui` (Material-3-Theme, gemeinsame Composables, Strings) | ✅ abgeschlossen, Architekt-Review-Fixes eingearbeitet |
+| B2a | Lint-Enforcement-Smoketest (HardcodedText als Error) | ✅ abgeschlossen |
+| B2b | Custom-detekt-Rule `HardcodedStringInComposable` | ⏸ bewusst zurückgestellt — Lint-HardcodedText-Pflicht reicht; TODO in `detekt.yml` |
 | C1–C6 | Service- und Feature-Skelette | 📋 geplant |
 | D1–D2 | Koin-DI-Graph | 📋 geplant |
 | E1–E4 | `:app`-Einstiegspunkt | 📋 geplant |
@@ -42,7 +43,7 @@ Stand: Release v0.1.0 (Grundgerüst) — Branch `release/v0.1.0`, Phase A (A1–
 | `:core:model` | ✅ implementiert (v0.1.0/A2) | Stabil; Domain-Datenklassen werden bei Bedarf in Folge-Releases erweitert |
 | `:core:logging` | ✅ implementiert (v0.1.0/A3) | Logger-Interface, AndroidLogcatLogger, RingBufferLogger, CompositeLogger — alle Tests grün |
 | `:core:crypto` | ✅ implementiert (v0.1.0/A4 Skeleton) | KeyDerivation + Aead Interfaces mit TODO("v0.5.0/v0.6.0"); Skelett an ADR-0002-Phasen ausgerichtet |
-| `:core:ui` | 📋 geplant (v0.1.0/B1) | Material-3-Theme + gemeinsame Composables |
+| `:core:ui` | ✅ implementiert (v0.1.0/B1) | HeraTalkTheme light/dark, HeraTalkColors, HeraTalkExtraColors, HeraTalkScaffold, NetworkQualityBadge, SectionHeader; EN+DE Strings; Compose-Previews; Architekt-Review-Fixes eingearbeitet |
 | `:core:identity` | ✅ implementiert (v0.1.0/A5) | IdentityRepository, DataStoreIdentityRepository, fallbackPeerName; alle Tests grün |
 | `:service:discovery` | 📋 geplant | v0.2.0 |
 | `:service:transport` | 📋 geplant | v0.2.0 (Skeleton), adaptiv ab v0.9.0 |
@@ -171,6 +172,31 @@ Die drei bestehenden ADRs wurden als inkonsistent und teilweise duplikativ zur A
 **Konsequenz:** Die alten Dateien `0001-kotlin-native.md` und `0003-srtp-custom-implementation.md` wurden gelöscht; `0002-noise-protocol.md` wurde überschrieben. Die Plattform- und SRTP-Entscheidungen leben weiter in diesem Entscheidungsprotokoll und in `architecture.md` — keine inhaltliche Information ist verloren gegangen.
 
 **Wichtig — Querverweis-Hinweis:** ADR-0003 ist ab jetzt ausschließlich die Audio-Codec-Entscheidung und darf nicht mehr als Referenz für SRTP-/Security-Themen gelesen werden. Die normativen SRTP-/Transport-Sicherheitsdetails werden nun in `architecture.md` festgehalten. Bestehende Querverweise auf "ADR 0003" in älteren Dokumenten (insbesondere `docs/security-audit.md`) im SRTP-Kontext sind als veraltet zu betrachten; die jeweilige normative Quelle ist `architecture.md §9`.
+
+### 2026-05-01 · Phase B abgeschlossen: `:core:ui`, Lint-Smoketest, CI-Fixes
+
+**B1 — `:core:ui` implementiert (commits `8f81f72`, `3299cf4`, `f00cf68`):**
+
+- `HeraTalkTheme` (light + dark Color-Schemes), `HeraTalkColors` (Ampel-Farbtokens: grün/blau/gelb/rot), `HeraTalkExtraColors` (warning, directCall, offline via `CompositionLocal`), `HeraTalkTypography`.
+- Composables: `HeraTalkScaffold`, `NetworkQualityBadge`, `SectionHeader` — alle mit Light/Dark `@Preview`.
+- `ThemePreview.kt` mit dedizierten Theme-Palette-Previews (Architekt-B1-Review-Kriterium).
+- EN-Strings in `core/ui/src/main/res/values/strings.xml`, DE-Strings in `values-de/strings.xml` (`common_*`, `network_quality_*`).
+- Compose-BOM auf `2026.04.01` angehoben (`2026.04.00` existiert nicht auf Google Maven).
+
+**Architekt-Befund D-1 (`:core:ui` ist Compose-Android-Library, nicht JVM-only):** `architecture.md §4.1` korrigiert — `:core:ui` aus der JVM-only-Aussage ausgenommen und korrekt als Compose-Android-Library beschrieben.
+
+**CI-Fixes (commit `f00cf68`):**
+
+- `detekt.yml`: ungültiger `formatting`-Block und `AvoidReferenceToMutableStateFlow` entfernt; `FunctionNaming.ignoreAnnotated` für `@Composable`/`@Preview`, `UnusedPrivateMember.ignoreAnnotated`, `MaxLineLength` mit Test-Ausnahmen, `MagicNumber.ignorePropertyDeclaration`, `UndocumentedPublicClass.searchInInnerObject=false` ergänzt.
+- `.editorconfig`: `ktlint_function_naming_ignore_when_annotated_with` für `@Composable`/`@Preview` (PascalCase-Preview-Funktionen zulässig).
+- Datei-Umbenennung: `Color.kt → HeraTalkColors.kt`, `Theme.kt → HeraTalkTheme.kt` (ktlint-filename-Rule).
+- `HeraTalkExtraColors.kt` separiert, alle On-Color-Hex-Literale in `HeraTalkColors` als benannte Konstanten.
+- `PeerId.MAX_LENGTH=64` als Konstante extrahiert (`MagicNumber`-Finding).
+- Spotless: zweizeiliger Copyright-Header auf allen `.kt`-Dateien.
+
+**B2a — Lint-Smoketest bestanden:** `HardcodedText` und `MissingTranslation` als Error in `lint.xml` aktiv und in CI erzwungen.
+
+**B2b — Custom-detekt-Rule zurückgestellt:** Lint-`HardcodedText`-Pflicht übernimmt den Schutz. TODO in `detekt.yml` dokumentiert.
 
 ## Offene Fragen
 

@@ -145,7 +145,7 @@ Diese Ausnahme ist in **ADR-0004** (`docs/adrs/0004-core-android-adapters.md`) f
 | `:core:logging` | `AndroidLogcatLogger` | `android.util.Log` |
 | `:core:identity` | `DataStoreIdentityRepository`, später Keystore-Adapter | `androidx.datastore.preferences`, `android.security.keystore` |
 
-Alle anderen `:core:*`-Module (`:core:crypto`, `:core:model`, `:core:ui`) sind strikt JVM-only. Erweiterungen der Whitelist sind Architektur-Änderungen und brauchen ein neues ADR oder ein Update von ADR-0004.
+Alle anderen `:core:*`-Module (`:core:crypto`, `:core:model`) sind strikt JVM-only. `:core:ui` ist eine Compose-Android-Library (`com.android.library` + Compose) und darf Compose- und Android-APIs nutzen, exportiert jedoch keine Android-Typen in seiner öffentlichen API (keine `Context`-, `View`- oder `Bundle`-Parameter an den Composables). Erweiterungen der Whitelist sind Architektur-Änderungen und brauchen ein neues ADR oder ein Update von ADR-0004.
 
 ## 5. Kommunikationsmodelle
 
