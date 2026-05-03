@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/java:21-bookworm
+FROM mcr.microsoft.com/devcontainers/java:25-bookworm
 
 # --- Versionen (bei Update anpassen) ---
 ARG ANDROID_CMDLINE_TOOLS_VERSION=14742923
